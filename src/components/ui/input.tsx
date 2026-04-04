@@ -13,7 +13,7 @@ const inputVariants = cva(
     "flex w-full",
     "rounded-[var(--radius,0.5rem)]",
     "border border-[var(--border,#e2e8f0)]",
-    "bg-white text-[var(--foreground,#0f172a)]",
+    "bg-[var(--background,#ffffff)] text-[var(--foreground,#0f172a)]",
     "placeholder:text-[var(--muted-foreground,#64748b)]",
     "transition-all duration-200",
     "focus-visible:outline-none focus-visible:ring-2",

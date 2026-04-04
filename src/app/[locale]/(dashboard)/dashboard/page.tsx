@@ -58,14 +58,14 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <div
             key={stat.key}
-            className="rounded-2xl border border-[var(--border,#e2e8f0)] bg-white p-6 transition-all duration-200 hover:shadow-md"
+            className="rounded-2xl border border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] p-6 transition-all duration-200 hover:shadow-md"
           >
             <div className="flex items-center justify-between">
               <div className="rounded-xl bg-[var(--primary,#6366f1)]/10 p-3 text-[var(--primary,#6366f1)]">
                 {stat.icon}
               </div>
               {stat.change && (
-                <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-medium text-[#16a34a] bg-[#dcfce7] px-2 py-0.5 rounded-full">
                   {stat.change}
                 </span>
               )}
@@ -81,7 +81,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Orders Placeholder */}
-      <div className="rounded-2xl border border-[var(--border,#e2e8f0)] bg-white p-6">
+      <div className="rounded-2xl border border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] p-6">
         <h2 className="text-lg font-semibold mb-4">{t("orders.title")}</h2>
         <div className="flex flex-col items-center justify-center py-12 text-[var(--muted-foreground,#64748b)]">
           <svg className="size-16 mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">

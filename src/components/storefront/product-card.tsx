@@ -45,7 +45,7 @@ export function ProductCard({
         "group relative flex flex-col overflow-hidden",
         "rounded-[var(--radius,0.5rem)]",
         "border border-[var(--border,#e2e8f0)]",
-        "bg-white",
+        "bg-[var(--background,#ffffff)]",
         "transition-all duration-300 ease-in-out",
         "hover:shadow-lg hover:shadow-[var(--primary,#6366f1)]/10",
         "hover:-translate-y-1",

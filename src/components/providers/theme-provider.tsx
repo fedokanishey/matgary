@@ -16,7 +16,7 @@ interface ThemeProviderProps {
  */
 export function ThemeProvider({ themeSettings, children }: ThemeProviderProps) {
   // Default theme values (used when no store settings exist)
-  const theme = {
+  const lightTheme = {
     "--primary": themeSettings?.primaryColor ?? "#6366f1",
     "--secondary": themeSettings?.secondaryColor ?? "#8b5cf6",
     "--accent": themeSettings?.accentColor ?? "#f59e0b",
@@ -29,7 +29,23 @@ export function ThemeProvider({ themeSettings, children }: ThemeProviderProps) {
     "--font-family": themeSettings?.fontFamily ?? "Inter, sans-serif",
   };
 
-  const cssVariables = Object.entries(theme)
+  // Dark theme values — invert light theme colors
+  const darkTheme = {
+    "--primary": "#818cf8",
+    "--secondary": "#a78bfa",
+    "--accent": "#fbbf24",
+    "--background": "#0f172a",
+    "--foreground": "#f8fafc",
+    "--muted": "#1e293b",
+    "--muted-foreground": "#94a3b8",
+    "--border": "#334155",
+  };
+
+  const lightCssVariables = Object.entries(lightTheme)
+    .map(([key, value]) => `${key}: ${value};`)
+    .join("\n    ");
+
+  const darkCssVariables = Object.entries(darkTheme)
     .map(([key, value]) => `${key}: ${value};`)
     .join("\n    ");
 
@@ -39,8 +55,14 @@ export function ThemeProvider({ themeSettings, children }: ThemeProviderProps) {
         dangerouslySetInnerHTML={{
           __html: `
   :root {
-    ${cssVariables}
+    ${lightCssVariables}
   }
+  
+  html.dark,
+  .dark {
+    ${darkCssVariables}
+  }
+  
   body {
     font-family: var(--font-family);
     background-color: var(--background);

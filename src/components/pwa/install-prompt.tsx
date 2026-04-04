@@ -52,7 +52,7 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed bottom-6 end-6 z-50 animate-in slide-in-from-bottom-4 fade-in duration-500">
-      <div className="flex items-center gap-3 rounded-2xl border border-[var(--border,#e2e8f0)] bg-white p-4 shadow-2xl shadow-black/10">
+      <div className="flex items-center gap-3 rounded-2xl border border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] p-4 shadow-2xl shadow-black/10">
         <div className="size-10 rounded-xl bg-gradient-to-br from-[var(--primary,#6366f1)] to-[var(--secondary,#8b5cf6)] flex items-center justify-center shrink-0">
           <svg className="size-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

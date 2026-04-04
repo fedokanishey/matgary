@@ -19,6 +19,7 @@
   --font-family: "Inter", sans-serif;
 }
 
+html.dark,
 .dark {
   --primary: #818cf8;
   --secondary: #a78bfa;

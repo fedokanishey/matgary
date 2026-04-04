@@ -91,19 +91,26 @@
       "featured": "مميز",
       "archived": "مؤرشف"
     },
+    "customers": {
+      "title": "العملاء",
+      "empty": "لا يوجد عملاء بعد"
+    },
     "settings": {
       "title": "إعدادات المتجر",
       "general": "عام",
+      "generalDescription": "قم بتعديل اسم المتجر والرابط والإعدادات العامة. قريباً.",
       "storeName": "اسم المتجر",
       "storeSlug": "رابط المتجر",
       "description": "الوصف",
       "currency": "العملة",
       "theme": "الثيم والعلامة التجارية",
+      "themeDescription": "قم بتخصيص شعار متجرك - الألوان والخطوط والمزيد. قريباً.",
       "primaryColor": "اللون الأساسي",
       "secondaryColor": "اللون الثانوي",
       "fontFamily": "نوع الخط",
       "borderRadius": "حواف مستديرة",
       "features": "المميزات",
+      "featuresDescription": "قم بتفعيل أو تعطيل ميزات المتجر. قريباً.",
       "enableWhatsApp": "دردشة واتساب",
       "enableReviews": "تقييمات المنتجات",
       "enableDarkMode": "الوضع الداكن",
@@ -111,13 +118,15 @@
       "enableSound": "تنبيهات صوتية",
       "enableEmail": "إشعارات البريد"
     },
-    "notifications": {
+    "notificationSettings": {
       "title": "إعدادات الإشعارات",
       "enable": "تفعيل الإشعارات الفورية",
       "sound": "التنبيهات الصوتية",
       "browser": "إشعارات المتصفح",
       "email": "إشعارات البريد الإلكتروني",
-      "test": "إرسال إشعار تجريبي"
+      "test": "إرسال إشعار تجريبي",
+      "label": "الإشعارات",
+      "empty": "لا توجد إشعارات جديدة الآن. ستظهر التنبيهات النظامية هنا."
     }
   },
   "storefront": {

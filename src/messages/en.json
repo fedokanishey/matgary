@@ -91,19 +91,26 @@
       "featured": "Featured",
       "archived": "Archived"
     },
+    "customers": {
+      "title": "Customers",
+      "empty": "No customers yet"
+    },
     "settings": {
       "title": "Store Settings",
       "general": "General",
+      "generalDescription": "Configure your store name, URL, and general settings. Coming soon.",
       "storeName": "Store Name",
       "storeSlug": "Store URL",
       "description": "Description",
       "currency": "Currency",
       "theme": "Theme & Branding",
+      "themeDescription": "Customize your store branding — colors, fonts, and more. Coming soon.",
       "primaryColor": "Primary Color",
       "secondaryColor": "Secondary Color",
       "fontFamily": "Font Family",
       "borderRadius": "Border Radius",
       "features": "Features",
+      "featuresDescription": "Enable or disable store features. Coming soon.",
       "enableWhatsApp": "WhatsApp Chat",
       "enableReviews": "Product Reviews",
       "enableDarkMode": "Dark Mode",
@@ -111,13 +118,15 @@
       "enableSound": "Sound Alerts",
       "enableEmail": "Email Alerts"
     },
-    "notifications": {
+    "notificationSettings": {
       "title": "Notification Settings",
       "enable": "Enable Push Notifications",
       "sound": "Sound Alerts",
       "browser": "Browser Notifications",
       "email": "Email Notifications",
-      "test": "Send Test Notification"
+      "test": "Send Test Notification",
+      "label": "Notifications",
+      "empty": "You have no new notifications right now. System alerts will appear here."
     }
   },
   "storefront": {

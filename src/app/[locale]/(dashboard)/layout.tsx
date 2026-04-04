@@ -75,7 +75,7 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col border-e border-[var(--border,#e2e8f0)] bg-white transition-all duration-300",
+          "hidden md:flex flex-col border-e border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] transition-all duration-300",
           isOpen ? "w-64" : "w-20"
         )}
       >
@@ -111,7 +111,7 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex h-16 items-center justify-between border-b border-[var(--border,#e2e8f0)] bg-white px-6">
+        <header className="flex h-16 items-center justify-between border-b border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] px-6">
           <button
             onClick={toggle}
             className="p-2 rounded-lg hover:bg-[var(--muted,#f1f5f9)] transition-colors"
@@ -140,9 +140,9 @@ export default function DashboardLayout({
 
               {showNotifications && (
                 <div className="absolute end-0 top-full mt-2 w-80 rounded-xl border border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] text-[var(--foreground,#0f172a)] p-4 shadow-lg z-50">
-                  <h3 className="mb-2 font-semibold">Notifications</h3>
+                  <h3 className="mb-2 font-semibold">{t("notificationSettings.label")}</h3>
                   <div className="rounded-lg border border-[var(--border,#e2e8f0)] p-3 bg-[var(--muted,#f1f5f9)]/50">
-                    <p className="text-sm text-[var(--muted-foreground,#64748b)]">You have no new notifications right now. System alerts will appear here.</p>
+                    <p className="text-sm text-[var(--muted-foreground,#64748b)]">{t("notificationSettings.empty")}</p>
                   </div>
                 </div>
               )}
