@@ -75,14 +75,8 @@ export default function DashboardLayout({
           isOpen ? "w-64" : "w-20"
         )}
       >
-        {/* Logo */}
         <div className="flex h-16 items-center gap-2 border-b border-[var(--border,#e2e8f0)] px-4">
-          <Image src="/logo.png" alt="Matgary Logo" width={36} height={36} className="rounded-lg object-cover shrink-0" />
-          {isOpen && (
-            <span className="text-lg font-bold bg-gradient-to-r from-[var(--primary,#6366f1)] to-[var(--secondary,#8b5cf6)] bg-clip-text text-transparent">
-              Matgary
-            </span>
-          )}
+          <Image src="/logo.png" alt="Matgary Logo" width={140} height={40} className="rounded-lg h-8 w-auto shrink-0" priority quality={100} />
         </div>
 
         {/* Nav Items */}

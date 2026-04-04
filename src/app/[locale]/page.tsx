@@ -15,10 +15,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 w-full border-b border-[var(--border,#e2e8f0)] bg-[var(--background)]/80 backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Matgary Logo" width={32} height={32} className="rounded-lg object-cover" />
-            <span className="text-xl font-bold bg-gradient-to-r from-[var(--primary,#6366f1)] to-[var(--secondary,#8b5cf6)] bg-clip-text text-transparent">
-              {tCommon("appName")}
-            </span>
+            <Image src="/logo.png" alt="Matgary Logo" width={140} height={40} className="rounded-lg h-10 w-auto" priority quality={100} />
           </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
