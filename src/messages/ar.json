@@ -1,0 +1,164 @@
+{
+  "common": {
+    "appName": "متجري",
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "search": "بحث...",
+    "noResults": "لا توجد نتائج",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "viewAll": "عرض الكل",
+    "learnMore": "اعرف أكثر"
+  },
+  "landing": {
+    "hero": {
+      "title": "أنشئ متجرك الإلكتروني في دقائق",
+      "subtitle": "متجري هي منصة SaaS قوية تتيح لك إنشاء وتخصيص وإدارة متجرك الإلكتروني بدون أي مهارات برمجية.",
+      "cta": "ابدأ مجاناً",
+      "secondaryCta": "شاهد العرض"
+    },
+    "features": {
+      "title": "كل ما تحتاجه",
+      "subtitle": "جميع الأدوات لإطلاق وتنمية عملك عبر الإنترنت",
+      "pwa": {
+        "title": "تطبيق قابل للتثبيت",
+        "description": "متجرك يعمل كتطبيق أصلي على الموبايل والكمبيوتر"
+      },
+      "notifications": {
+        "title": "إشعارات فورية",
+        "description": "احصل على إشعارات فورية عند وصول طلبات جديدة"
+      },
+      "branding": {
+        "title": "علامة تجارية مخصصة",
+        "description": "تخصيص كامل للثيم — الألوان والخطوط والشعار"
+      },
+      "i18n": {
+        "title": "عربي وإنجليزي",
+        "description": "دعم كامل للغة العربية من اليمين لليسار"
+      }
+    }
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "signOut": "تسجيل الخروج"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "أهلاً بعودتك",
+    "nav": {
+      "overview": "نظرة عامة",
+      "products": "المنتجات",
+      "orders": "الطلبات",
+      "customers": "العملاء",
+      "settings": "الإعدادات",
+      "notifications": "الإشعارات"
+    },
+    "stats": {
+      "totalRevenue": "إجمالي الإيرادات",
+      "totalOrders": "إجمالي الطلبات",
+      "totalProducts": "المنتجات",
+      "totalCustomers": "العملاء"
+    },
+    "orders": {
+      "title": "الطلبات",
+      "empty": "لا توجد طلبات بعد",
+      "status": {
+        "PENDING": "قيد الانتظار",
+        "CONFIRMED": "مؤكد",
+        "PROCESSING": "قيد المعالجة",
+        "SHIPPED": "تم الشحن",
+        "DELIVERED": "تم التوصيل",
+        "CANCELLED": "ملغي",
+        "REFUNDED": "مسترد"
+      }
+    },
+    "products": {
+      "title": "المنتجات",
+      "add": "إضافة منتج",
+      "empty": "لا توجد منتجات بعد. أضف أول منتج!",
+      "name": "اسم المنتج",
+      "price": "السعر",
+      "inventory": "المخزون",
+      "category": "الفئة",
+      "featured": "مميز",
+      "archived": "مؤرشف"
+    },
+    "settings": {
+      "title": "إعدادات المتجر",
+      "general": "عام",
+      "storeName": "اسم المتجر",
+      "storeSlug": "رابط المتجر",
+      "description": "الوصف",
+      "currency": "العملة",
+      "theme": "الثيم والعلامة التجارية",
+      "primaryColor": "اللون الأساسي",
+      "secondaryColor": "اللون الثانوي",
+      "fontFamily": "نوع الخط",
+      "borderRadius": "حواف مستديرة",
+      "features": "المميزات",
+      "enableWhatsApp": "دردشة واتساب",
+      "enableReviews": "تقييمات المنتجات",
+      "enableDarkMode": "الوضع الداكن",
+      "enablePush": "الإشعارات الفورية",
+      "enableSound": "تنبيهات صوتية",
+      "enableEmail": "إشعارات البريد"
+    },
+    "notifications": {
+      "title": "إعدادات الإشعارات",
+      "enable": "تفعيل الإشعارات الفورية",
+      "sound": "التنبيهات الصوتية",
+      "browser": "إشعارات المتصفح",
+      "email": "إشعارات البريد الإلكتروني",
+      "test": "إرسال إشعار تجريبي"
+    }
+  },
+  "storefront": {
+    "nav": {
+      "home": "الرئيسية",
+      "products": "المنتجات",
+      "cart": "السلة",
+      "categories": "الفئات"
+    },
+    "product": {
+      "addToCart": "أضف للسلة",
+      "outOfStock": "نفد المخزون",
+      "inStock": "متاح",
+      "quantity": "الكمية",
+      "description": "الوصف",
+      "relatedProducts": "منتجات مشابهة"
+    },
+    "cart": {
+      "title": "سلة التسوق",
+      "empty": "سلتك فارغة",
+      "subtotal": "المجموع الفرعي",
+      "checkout": "إتمام الشراء",
+      "continueShopping": "متابعة التسوق",
+      "remove": "حذف",
+      "itemCount": "{count, plural, =0 {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصر} other {# عنصر}}"
+    },
+    "checkout": {
+      "title": "إتمام الطلب",
+      "customerInfo": "معلومات العميل",
+      "name": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "address": "عنوان الشحن",
+      "notes": "ملاحظات الطلب",
+      "placeOrder": "تأكيد الطلب",
+      "orderSuccess": "تم تقديم الطلب بنجاح!",
+      "orderNumber": "رقم الطلب"
+    }
+  },
+  "pwa": {
+    "install": "تثبيت التطبيق",
+    "installDescription": "أضف التطبيق لشاشتك الرئيسية لأفضل تجربة"
+  }
+}

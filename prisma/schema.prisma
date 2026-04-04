@@ -1,0 +1,237 @@
+// Matgary — Multi-Tenant SaaS E-commerce Builder
+// Database: MongoDB with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────────────────────
+// User — synced from Clerk via webhook
+// ──────────────────────────────────────────────────────────────
+model User {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId    String   @unique
+  email      String   @unique
+  firstName  String?
+  lastName   String?
+  imageUrl   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  stores            Store[]
+  pushSubscriptions PushSubscription[]
+}
+
+// ──────────────────────────────────────────────────────────────
+// Store — the tenant entity
+// ──────────────────────────────────────────────────────────────
+model Store {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String   @unique
+  description String?
+  logoUrl     String?
+  currency    String   @default("EGP")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Owner relation
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Child relations
+  configuration StoreConfiguration?
+  themeSettings ThemeSettings?
+  categories    Category[]
+  products      Product[]
+  orders        Order[]
+  notifications Notification[]
+
+  @@index([userId])
+}
+
+// ──────────────────────────────────────────────────────────────
+// StoreConfiguration — feature flags for toggling features
+// ──────────────────────────────────────────────────────────────
+model StoreConfiguration {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  whatsAppChat      Boolean @default(false)
+  whatsAppNumber    String?
+  reviews           Boolean @default(false)
+  darkMode          Boolean @default(false)
+  pushNotifications Boolean @default(true)
+  soundAlerts       Boolean @default(true)
+  emailAlerts       Boolean @default(true)
+
+  storeId String @unique @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+// ──────────────────────────────────────────────────────────────
+// ThemeSettings — CSS variable values for dynamic branding
+// ──────────────────────────────────────────────────────────────
+model ThemeSettings {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  primaryColor     String @default("#6366f1")  // Indigo
+  secondaryColor   String @default("#8b5cf6")  // Violet
+  accentColor      String @default("#f59e0b")  // Amber
+  backgroundColor  String @default("#ffffff")
+  foregroundColor  String @default("#0f172a")
+  mutedColor       String @default("#f1f5f9")
+  mutedForeground  String @default("#64748b")
+  borderColor      String @default("#e2e8f0")
+  borderRadius     String @default("0.5rem")
+  fontFamily       String @default("Inter, sans-serif")
+
+  storeId String @unique @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+// ──────────────────────────────────────────────────────────────
+// Category — product categories scoped by store
+// ──────────────────────────────────────────────────────────────
+model Category {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  slug      String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  storeId  String    @db.ObjectId
+  store    Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+}
+
+// ──────────────────────────────────────────────────────────────
+// Product — store products with inventory tracking
+// ──────────────────────────────────────────────────────────────
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String
+  description String?
+  price       Float
+  compareAt   Float?   // Original price for "sale" display
+  images      String[] // Array of image URLs
+  inventory   Int      @default(0)
+  isFeatured  Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  storeId    String      @db.ObjectId
+  store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId String?     @db.ObjectId
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+  @@index([categoryId])
+}
+
+// ──────────────────────────────────────────────────────────────
+// Order — customer order with status tracking
+// ──────────────────────────────────────────────────────────────
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model Order {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber     String      @unique
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  currency        String      @default("EGP")
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  shippingAddress String?
+  notes           String?
+  isPaid          Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  storeId String      @db.ObjectId
+  store   Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  items   OrderItem[]
+
+  @@index([storeId])
+  @@index([storeId, status])
+}
+
+// ──────────────────────────────────────────────────────────────
+// OrderItem — individual line items within an order
+// ──────────────────────────────────────────────────────────────
+model OrderItem {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  Int
+  unitPrice Float
+  total     Float
+
+  orderId   String  @db.ObjectId
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}
+
+// ──────────────────────────────────────────────────────────────
+// Notification — in-app notification records
+// ──────────────────────────────────────────────────────────────
+enum NotificationType {
+  NEW_ORDER
+  ORDER_STATUS
+  LOW_STOCK
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?            // Additional payload (orderId, etc.)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([storeId, isRead])
+}
+
+// ──────────────────────────────────────────────────────────────
+// PushSubscription — Web Push subscription endpoints per user
+// ──────────────────────────────────────────────────────────────
+model PushSubscription {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+  @@index([userId])
+}

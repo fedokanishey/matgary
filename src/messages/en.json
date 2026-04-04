@@ -1,0 +1,164 @@
+{
+  "common": {
+    "appName": "Matgary",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search...",
+    "noResults": "No results found",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "close": "Close",
+    "viewAll": "View All",
+    "learnMore": "Learn More"
+  },
+  "landing": {
+    "hero": {
+      "title": "Build Your Online Store in Minutes",
+      "subtitle": "Matgary is a powerful SaaS platform that lets you create, customize, and manage your own e-commerce store with zero coding skills.",
+      "cta": "Get Started Free",
+      "secondaryCta": "See Demo"
+    },
+    "features": {
+      "title": "Everything You Need",
+      "subtitle": "All the tools to launch and grow your online business",
+      "pwa": {
+        "title": "Installable PWA",
+        "description": "Your store works like a native app on mobile and desktop"
+      },
+      "notifications": {
+        "title": "Real-time Alerts",
+        "description": "Get instant push notifications when new orders come in"
+      },
+      "branding": {
+        "title": "Custom Branding",
+        "description": "Full theme customization — colors, fonts, and logo"
+      },
+      "i18n": {
+        "title": "Arabic & English",
+        "description": "Full RTL support for Arabic-speaking customers"
+      }
+    }
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "nav": {
+      "overview": "Overview",
+      "products": "Products",
+      "orders": "Orders",
+      "customers": "Customers",
+      "settings": "Settings",
+      "notifications": "Notifications"
+    },
+    "stats": {
+      "totalRevenue": "Total Revenue",
+      "totalOrders": "Total Orders",
+      "totalProducts": "Products",
+      "totalCustomers": "Customers"
+    },
+    "orders": {
+      "title": "Orders",
+      "empty": "No orders yet",
+      "status": {
+        "PENDING": "Pending",
+        "CONFIRMED": "Confirmed",
+        "PROCESSING": "Processing",
+        "SHIPPED": "Shipped",
+        "DELIVERED": "Delivered",
+        "CANCELLED": "Cancelled",
+        "REFUNDED": "Refunded"
+      }
+    },
+    "products": {
+      "title": "Products",
+      "add": "Add Product",
+      "empty": "No products yet. Add your first product!",
+      "name": "Product Name",
+      "price": "Price",
+      "inventory": "Inventory",
+      "category": "Category",
+      "featured": "Featured",
+      "archived": "Archived"
+    },
+    "settings": {
+      "title": "Store Settings",
+      "general": "General",
+      "storeName": "Store Name",
+      "storeSlug": "Store URL",
+      "description": "Description",
+      "currency": "Currency",
+      "theme": "Theme & Branding",
+      "primaryColor": "Primary Color",
+      "secondaryColor": "Secondary Color",
+      "fontFamily": "Font Family",
+      "borderRadius": "Border Radius",
+      "features": "Features",
+      "enableWhatsApp": "WhatsApp Chat",
+      "enableReviews": "Product Reviews",
+      "enableDarkMode": "Dark Mode",
+      "enablePush": "Push Notifications",
+      "enableSound": "Sound Alerts",
+      "enableEmail": "Email Alerts"
+    },
+    "notifications": {
+      "title": "Notification Settings",
+      "enable": "Enable Push Notifications",
+      "sound": "Sound Alerts",
+      "browser": "Browser Notifications",
+      "email": "Email Notifications",
+      "test": "Send Test Notification"
+    }
+  },
+  "storefront": {
+    "nav": {
+      "home": "Home",
+      "products": "Products",
+      "cart": "Cart",
+      "categories": "Categories"
+    },
+    "product": {
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "inStock": "In Stock",
+      "quantity": "Quantity",
+      "description": "Description",
+      "relatedProducts": "Related Products"
+    },
+    "cart": {
+      "title": "Shopping Cart",
+      "empty": "Your cart is empty",
+      "subtotal": "Subtotal",
+      "checkout": "Proceed to Checkout",
+      "continueShopping": "Continue Shopping",
+      "remove": "Remove",
+      "itemCount": "{count, plural, =0 {No items} one {1 item} other {# items}}"
+    },
+    "checkout": {
+      "title": "Checkout",
+      "customerInfo": "Customer Information",
+      "name": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "address": "Shipping Address",
+      "notes": "Order Notes",
+      "placeOrder": "Place Order",
+      "orderSuccess": "Order placed successfully!",
+      "orderNumber": "Order Number"
+    }
+  },
+  "pwa": {
+    "install": "Install App",
+    "installDescription": "Add to your home screen for the best experience"
+  }
+}
