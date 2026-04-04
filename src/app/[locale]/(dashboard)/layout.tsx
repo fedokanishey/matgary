@@ -76,7 +76,7 @@ export default function DashboardLayout({
         )}
       >
         <div className="flex h-16 items-center gap-2 border-b border-[var(--border,#e2e8f0)] px-4">
-          <Image src="/logo.png" alt="Matgary Logo" width={140} height={40} className="rounded-lg h-8 w-auto shrink-0" priority quality={100} />
+          <Image src="/logo.png" alt="Matgary Logo" width={240} height={80} className="rounded-lg h-12 w-auto shrink-0" priority quality={100} unoptimized />
         </div>
 
         {/* Nav Items */}
