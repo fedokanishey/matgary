@@ -17,7 +17,7 @@ export default async function LandingPage() {
       <header className="sticky top-0 z-50 w-full border-b border-[var(--border,#e2e8f0)] bg-[var(--background)]/80 backdrop-blur-md">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Matgary Logo" width={300} height={100} className="rounded-lg h-24 w-auto scale-150 origin-left" priority quality={100} unoptimized />
+            <Image src="/logo.png" alt="Matgary Logo" width={300} height={100} className="rounded-lg h-24 w-auto scale-150 origin-left rtl:origin-right" priority quality={100} unoptimized />
           </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
