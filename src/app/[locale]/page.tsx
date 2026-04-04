@@ -1,13 +1,16 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { UserButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
-export default function LandingPage() {
-  const t = useTranslations("landing");
-  const tCommon = useTranslations("common");
+export default async function LandingPage() {
+  const t = await getTranslations("landing");
+  const tCommon = await getTranslations("common");
+  const { userId } = await auth();
 
   return (
     <div className="min-h-screen">
@@ -20,12 +23,23 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <LanguageSwitcher />
-            <Button variant="ghost" asChild>
-              <Link href="/en/sign-in">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/en/sign-up">{t("hero.cta")}</Link>
-            </Button>
+            {!userId ? (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/en/sign-in">Sign In</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/en/sign-up">{t("hero.cta")}</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" asChild>
+                  <Link href="/en/dashboard">Dashboard</Link>
+                </Button>
+                <UserButton />
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -60,9 +74,15 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" asChild className="text-base px-8">
-                <Link href="/en/sign-up">{t("hero.cta")}</Link>
-              </Button>
+              {!userId ? (
+                <Button size="lg" asChild className="text-base px-8">
+                  <Link href="/en/sign-up">{t("hero.cta")}</Link>
+                </Button>
+              ) : (
+                <Button size="lg" asChild className="text-base px-8">
+                  <Link href="/en/dashboard">Go to Dashboard</Link>
+                </Button>
+              )}
               <Button size="lg" variant="outline" asChild className="text-base px-8">
                 <Link href="#features">{t("hero.secondaryCta")}</Link>
               </Button>
