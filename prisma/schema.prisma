@@ -36,6 +36,7 @@ model Store {
   slug        String   @unique
   description String?
   logoUrl     String?
+  faviconUrl  String?
   currency    String   @default("EGP")
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())

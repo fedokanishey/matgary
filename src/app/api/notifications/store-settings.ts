@@ -50,6 +50,8 @@ export async function PUT(req: NextRequest) {
           slug: data.storeSlug,
           description: data.description,
           currency: data.currency,
+          logoUrl: data.logoUrl,
+          faviconUrl: data.faviconUrl,
         },
       });
       return NextResponse.json({ success: true, data: updated });
@@ -61,6 +63,9 @@ export async function PUT(req: NextRequest) {
         update: {
           primaryColor: data.primaryColor,
           secondaryColor: data.secondaryColor,
+          accentColor: data.accentColor,
+          backgroundColor: data.backgroundColor,
+          foregroundColor: data.foregroundColor,
           fontFamily: data.fontFamily,
           borderRadius: data.borderRadius,
         },
@@ -68,6 +73,9 @@ export async function PUT(req: NextRequest) {
           storeId,
           primaryColor: data.primaryColor,
           secondaryColor: data.secondaryColor,
+          accentColor: data.accentColor,
+          backgroundColor: data.backgroundColor,
+          foregroundColor: data.foregroundColor,
           fontFamily: data.fontFamily,
           borderRadius: data.borderRadius,
         },
@@ -80,7 +88,9 @@ export async function PUT(req: NextRequest) {
         where: { storeId },
         update: {
           whatsAppChat: data.enableWhatsApp,
+          whatsAppNumber: data.whatsAppNumber,
           reviews: data.enableReviews,
+          darkMode: data.enableDarkMode,
           pushNotifications: data.enablePush,
           soundAlerts: data.enableSound,
           emailAlerts: data.enableEmail,
@@ -88,7 +98,9 @@ export async function PUT(req: NextRequest) {
         create: {
           storeId,
           whatsAppChat: data.enableWhatsApp,
+          whatsAppNumber: data.whatsAppNumber,
           reviews: data.enableReviews,
+          darkMode: data.enableDarkMode,
           pushNotifications: data.enablePush,
           soundAlerts: data.enableSound,
           emailAlerts: data.enableEmail,
