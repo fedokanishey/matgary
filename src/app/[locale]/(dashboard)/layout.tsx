@@ -75,8 +75,10 @@ export default function DashboardLayout({
           isOpen ? "w-64" : "w-20"
         )}
       >
-        <div className="flex h-20 items-center justify-center border-b border-[var(--border,#e2e8f0)] px-4">
-          <Image src="/logo.png" alt="Matgary Logo" width={300} height={100} className="h-16 w-auto scale-150 origin-left rtl:origin-right" priority quality={100} unoptimized />
+        <div className="flex h-20 items-center justify-center border-b border-[var(--border,#e2e8f0)] px-2">
+          <Link href="/dashboard" className="flex items-center justify-center">
+            <Image src="/logo.png" alt="Matgary Logo" width={220} height={60} className="h-14 w-auto object-contain object-center" priority quality={100} unoptimized />
+          </Link>
         </div>
 
         {/* Nav Items */}
