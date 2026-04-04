@@ -9,7 +9,6 @@ import { auth } from "@clerk/nextjs/server";
 
 export default async function LandingPage() {
   const t = await getTranslations("landing");
-  const tCommon = await getTranslations("common");
   const { userId } = await auth();
 
   return (
