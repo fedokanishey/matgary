@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -7,6 +8,8 @@ import { UserButton } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 const navItems = [
   {
@@ -65,6 +68,7 @@ export default function DashboardLayout({
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { isOpen, toggle } = useSidebarStore();
+  const [showNotifications, setShowNotifications] = useState(false);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--muted,#f1f5f9)]">
@@ -117,15 +121,34 @@ export default function DashboardLayout({
             </svg>
           </button>
 
-          <div className="flex items-center gap-4">
-            {/* Notification Bell */}
-            <button className="relative p-2 rounded-lg hover:bg-[var(--muted,#f1f5f9)] transition-colors">
-              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-              </svg>
-              <span className="absolute top-1 end-1 size-2 rounded-full bg-red-500" />
-            </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <LanguageSwitcher />
 
+            {/* Notification Bell */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 rounded-lg hover:bg-[var(--muted,#f1f5f9)] transition-colors"
+                title="Notifications"
+              >
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                <span className="absolute top-1 end-1 size-2 rounded-full bg-red-500" />
+              </button>
+
+              {showNotifications && (
+                <div className="absolute end-0 top-full mt-2 w-80 rounded-xl border border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] text-[var(--foreground,#0f172a)] p-4 shadow-lg z-50">
+                  <h3 className="mb-2 font-semibold">Notifications</h3>
+                  <div className="rounded-lg border border-[var(--border,#e2e8f0)] p-3 bg-[var(--muted,#f1f5f9)]/50">
+                    <p className="text-sm text-[var(--muted-foreground,#64748b)]">You have no new notifications right now. System alerts will appear here.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="h-6 w-px bg-[var(--border,#e2e8f0)] mx-1" />
             <UserButton />
           </div>
         </header>
