@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   Search,
@@ -88,11 +89,9 @@ const defaultFormData: FormData = {
 export default function ProductsPage() {
   const t = useTranslations("dashboard.products");
   const commonT = useTranslations("common");
+  const queryClient = useQueryClient();
 
   // State
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
@@ -104,25 +103,19 @@ export default function ProductsPage() {
   const [formData, setFormData] = useState<FormData>(defaultFormData);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  // Load products
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const res = await fetch("/api/notifications/products");
-        if (res.ok) {
-          const data = await res.json();
-          setProducts(data.products || []);
-          setCategories(data.categories || []);
-        }
-      } catch (error) {
-        console.error("Failed to load products:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Fetch products with React Query for caching
+  const { data, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const res = await fetch("/api/notifications/products");
+      if (!res.ok) throw new Error("Failed to fetch products");
+      return res.json();
+    },
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+  });
 
-    loadProducts();
-  }, []);
+  const products = data?.products || [];
+  const categories = data?.categories || [];
 
   // Filter products
   const filteredProducts = products.filter((product) => {
@@ -178,12 +171,8 @@ export default function ProductsPage() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        if (editingProduct) {
-          setProducts(products.map((p) => (p.id === editingProduct.id ? data.product : p)));
-        } else {
-          setProducts([data.product, ...products]);
-        }
+        // Invalidate and refetch products
+        queryClient.invalidateQueries({ queryKey: ["products"] });
         setShowDialog(false);
         setFormData(defaultFormData);
         setEditingProduct(null);
@@ -203,7 +192,7 @@ export default function ProductsPage() {
       });
 
       if (res.ok) {
-        setProducts(products.filter((p) => p.id !== productId));
+        queryClient.invalidateQueries({ queryKey: ["products"] });
         setDeleteConfirm(null);
       }
     } catch (error) {
@@ -224,8 +213,7 @@ export default function ProductsPage() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        setProducts(products.map((p) => (p.id === product.id ? data.product : p)));
+        queryClient.invalidateQueries({ queryKey: ["products"] });
       }
     } catch (error) {
       console.error("Failed to update product:", error);

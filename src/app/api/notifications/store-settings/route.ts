@@ -26,7 +26,7 @@ export async function GET() {
           description: "",
           currency: "USD",
           logoUrl: null,
-          faviconUrl: null,
+          heroImageUrl: null,
           configuration: null,
           themeSettings: null,
         }
@@ -166,7 +166,7 @@ export async function PUT(req: NextRequest) {
           description: data.description,
           currency: data.currency,
           logoUrl: data.logoUrl,
-          faviconUrl: data.faviconUrl,
+          heroImageUrl: data.heroImageUrl,
         },
       });
       console.log("[store-settings PUT] general updated:", updated.id);

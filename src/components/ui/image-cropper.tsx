@@ -18,7 +18,8 @@ interface ImageCropperProps {
   onOpenChange: (open: boolean) => void
   imageSrc: string
   onCropComplete: (croppedImageBlob: Blob) => void
-  aspect?: number
+  onSkipCrop?: () => void
+  aspect?: number // undefined = free aspect ratio (resizable crop area)
   cropShape?: "rect" | "round"
   title?: string
 }
@@ -90,7 +91,7 @@ async function getCroppedImg(
       } else {
         reject(new Error("Canvas is empty"))
       }
-    }, "image/jpeg", 0.9)
+    }, "image/png", 0.95) // Changed to PNG with high quality to preserve transparency
   })
 }
 
@@ -121,7 +122,8 @@ export function ImageCropper({
   onOpenChange,
   imageSrc,
   onCropComplete,
-  aspect = 1,
+  onSkipCrop,
+  aspect, // undefined = free aspect ratio
   cropShape = "rect",
   title = "Crop Image",
 }: ImageCropperProps) {
@@ -130,6 +132,7 @@ export function ImageCropper({
   const [rotation, setRotation] = React.useState(0)
   const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(null)
   const [isProcessing, setIsProcessing] = React.useState(false)
+  const [currentAspect, setCurrentAspect] = React.useState<number | undefined>(aspect)
 
   const onCropChange = React.useCallback((location: Point) => {
     setCrop(location)
@@ -159,6 +162,7 @@ export function ImageCropper({
       setCrop({ x: 0, y: 0 })
       setZoom(1)
       setRotation(0)
+      setCurrentAspect(aspect)
     } catch (error) {
       console.error("Error cropping image:", error)
     } finally {
@@ -166,11 +170,21 @@ export function ImageCropper({
     }
   }
 
+  const handleSkipCrop = () => {
+    onSkipCrop?.()
+    onOpenChange(false)
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
+    setRotation(0)
+    setCurrentAspect(aspect)
+  }
+
   const handleCancel = () => {
     onOpenChange(false)
     setCrop({ x: 0, y: 0 })
     setZoom(1)
     setRotation(0)
+    setCurrentAspect(aspect)
   }
 
   return (
@@ -187,7 +201,7 @@ export function ImageCropper({
             crop={crop}
             zoom={zoom}
             rotation={rotation}
-            aspect={aspect}
+            aspect={currentAspect}
             cropShape={cropShape}
             onCropChange={onCropChange}
             onZoomChange={onZoomChange}
@@ -200,49 +214,97 @@ export function ImageCropper({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-center gap-6">
-          {/* Zoom controls */}
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-4">
+          {/* Aspect Ratio Options */}
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <span className="text-sm text-[var(--muted-foreground)]">Aspect:</span>
             <Button
               type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => setZoom(Math.max(1, zoom - 0.1))}
-              disabled={zoom <= 1}
+              variant={currentAspect === undefined ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentAspect(undefined)}
             >
-              <ZoomOut className="w-4 h-4" />
+              Free
             </Button>
-            <div className="w-32">
-              <input
-                type="range"
-                min={1}
-                max={3}
-                step={0.1}
-                value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-full accent-[var(--primary)]"
-              />
-            </div>
             <Button
               type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => setZoom(Math.min(3, zoom + 0.1))}
-              disabled={zoom >= 3}
+              variant={currentAspect === 1 ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentAspect(1)}
             >
-              <ZoomIn className="w-4 h-4" />
+              1:1
+            </Button>
+            <Button
+              type="button"
+              variant={currentAspect === 16/9 ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentAspect(16/9)}
+            >
+              16:9
+            </Button>
+            <Button
+              type="button"
+              variant={currentAspect === 4/3 ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentAspect(4/3)}
+            >
+              4:3
+            </Button>
+            <Button
+              type="button"
+              variant={currentAspect === 3/2 ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentAspect(3/2)}
+            >
+              3:2
             </Button>
           </div>
 
-          {/* Rotation */}
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => setRotation((rotation + 90) % 360)}
-          >
-            <RotateCw className="w-4 h-4" />
-          </Button>
+          {/* Zoom & Rotation Controls */}
+          <div className="flex items-center justify-center gap-6">
+            {/* Zoom controls */}
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setZoom(Math.max(1, zoom - 0.1))}
+                disabled={zoom <= 1}
+              >
+                <ZoomOut className="w-4 h-4" />
+              </Button>
+              <div className="w-32">
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-full accent-[var(--primary)]"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setZoom(Math.min(3, zoom + 0.1))}
+                disabled={zoom >= 3}
+              >
+                <ZoomIn className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Rotation */}
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => setRotation((rotation + 90) % 360)}
+            >
+              <RotateCw className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         <DialogFooter className="gap-2">
@@ -255,6 +317,16 @@ export function ImageCropper({
             <X className="w-4 h-4 mr-2" />
             Cancel
           </Button>
+          {onSkipCrop && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleSkipCrop}
+              disabled={isProcessing}
+            >
+              Skip Crop
+            </Button>
+          )}
           <Button
             type="button"
             onClick={handleConfirm}
@@ -265,7 +337,7 @@ export function ImageCropper({
             ) : (
               <Check className="w-4 h-4 mr-2" />
             )}
-            Apply
+            Apply Crop
           </Button>
         </DialogFooter>
       </DialogContent>

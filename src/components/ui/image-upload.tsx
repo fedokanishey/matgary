@@ -21,7 +21,8 @@ interface ImageUploadProps {
   disabled?: boolean
   folder?: string
   enableCrop?: boolean
-  cropAspect?: number
+  cropAspect?: number // Use 0 or undefined for free aspect ratio
+  enableTrim?: boolean // Auto-trim whitespace/transparency
 }
 
 const sizeClasses = {
@@ -50,7 +51,8 @@ export function ImageUpload({
   disabled = false,
   folder = "Matgary/stores",
   enableCrop = true,
-  cropAspect = 1,
+  cropAspect, // undefined = free aspect ratio
+  enableTrim = true, // Auto-trim whitespace/transparency by default
 }: ImageUploadProps) {
   const [isDragging, setIsDragging] = React.useState(false)
   const [isUploading, setIsUploading] = React.useState(false)
@@ -86,14 +88,38 @@ export function ImageUpload({
       )
 
       if (!response.ok) {
-        throw new Error("Upload failed")
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Cloudinary upload error:", errorData)
+        throw new Error(errorData.error?.message || "Upload failed")
       }
 
       const data = await response.json()
       
-      setPreview(data.secure_url)
-      onChange?.(data.secure_url)
-      onUpload?.(data.secure_url)
+      // Build Cloudinary URL with quality settings
+      let finalUrl = data.secure_url
+      
+      // For hero images (lg size), use high quality
+      // Add q_auto:best for automatic best quality
+      if (finalUrl && finalUrl.includes('cloudinary.com')) {
+        const transformations = []
+        
+        // Add trim if enabled
+        if (enableTrim) {
+          transformations.push('e_trim')
+        }
+        
+        // Add high quality setting
+        transformations.push('q_auto:best')
+        
+        if (transformations.length > 0) {
+          const transformStr = transformations.join(',')
+          finalUrl = finalUrl.replace('/upload/', `/upload/${transformStr}/`)
+        }
+      }
+      
+      setPreview(finalUrl)
+      onChange?.(finalUrl)
+      onUpload?.(finalUrl)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed")
       setPreview(value || null)
@@ -131,6 +157,16 @@ export function ImageUpload({
       await uploadToCloudinary(file)
       URL.revokeObjectURL(localPreview)
     }
+  }
+
+  const handleSkipCrop = async () => {
+    if (pendingFile) {
+      const localPreview = URL.createObjectURL(pendingFile)
+      setPreview(localPreview)
+      await uploadToCloudinary(pendingFile)
+      URL.revokeObjectURL(localPreview)
+    }
+    handleCropCancel()
   }
 
   const handleCropComplete = async (croppedBlob: Blob) => {
@@ -302,6 +338,7 @@ export function ImageUpload({
           }}
           imageSrc={imageToCrop}
           onCropComplete={handleCropComplete}
+          onSkipCrop={handleSkipCrop}
           aspect={cropAspect}
           cropShape={shape === "circle" ? "round" : "rect"}
           title="Crop Image"

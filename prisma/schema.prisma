@@ -14,14 +14,14 @@ datasource db {
 // User — synced from Clerk via webhook
 // ──────────────────────────────────────────────────────────────
 model User {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId    String   @unique
-  email      String   @unique
-  firstName  String?
-  lastName   String?
-  imageUrl   String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId   String   @unique
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   stores            Store[]
   pushSubscriptions PushSubscription[]
@@ -36,6 +36,7 @@ model Store {
   slug        String   @unique
   description String?
   logoUrl     String?
+  heroImageUrl String?
   faviconUrl  String?
   currency    String   @default("EGP")
   isActive    Boolean  @default(true)
@@ -47,12 +48,13 @@ model Store {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Child relations
-  configuration StoreConfiguration?
-  themeSettings ThemeSettings?
-  categories    Category[]
-  products      Product[]
-  orders        Order[]
-  notifications Notification[]
+  configuration  StoreConfiguration?
+  themeSettings  ThemeSettings?
+  categories     Category[]
+  products       Product[]
+  orders         Order[]
+  notifications  Notification[]
+  storeCustomers StoreCustomer[]
 
   @@index([userId])
 }
@@ -78,17 +80,17 @@ model StoreConfiguration {
 // ThemeSettings — CSS variable values for dynamic branding
 // ──────────────────────────────────────────────────────────────
 model ThemeSettings {
-  id               String @id @default(auto()) @map("_id") @db.ObjectId
-  primaryColor     String @default("#6366f1")  // Indigo
-  secondaryColor   String @default("#8b5cf6")  // Violet
-  accentColor      String @default("#f59e0b")  // Amber
-  backgroundColor  String @default("#ffffff")
-  foregroundColor  String @default("#0f172a")
-  mutedColor       String @default("#f1f5f9")
-  mutedForeground  String @default("#64748b")
-  borderColor      String @default("#e2e8f0")
-  borderRadius     String @default("0.5rem")
-  fontFamily       String @default("Inter, sans-serif")
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  primaryColor    String @default("#6366f1") // Indigo
+  secondaryColor  String @default("#8b5cf6") // Violet
+  accentColor     String @default("#f59e0b") // Amber
+  backgroundColor String @default("#ffffff")
+  foregroundColor String @default("#0f172a")
+  mutedColor      String @default("#f1f5f9")
+  mutedForeground String @default("#64748b")
+  borderColor     String @default("#e2e8f0")
+  borderRadius    String @default("0.5rem")
+  fontFamily      String @default("Inter, sans-serif")
 
   storeId String @unique @db.ObjectId
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -122,7 +124,7 @@ model Product {
   slug        String
   description String?
   price       Float
-  compareAt   Float?   // Original price for "sale" display
+  compareAt   Float? // Original price for "sale" display
   images      String[] // Array of image URLs
   inventory   Int      @default(0)
   isFeatured  Boolean  @default(false)
@@ -169,9 +171,13 @@ model Order {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  storeId String      @db.ObjectId
-  store   Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  items   OrderItem[]
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  customerId String?        @db.ObjectId
+  customer   StoreCustomer? @relation(fields: [customerId], references: [id])
+
+  items OrderItem[]
 
   @@index([storeId])
   @@index([storeId, status])
@@ -209,7 +215,7 @@ model Notification {
   type      NotificationType
   title     String
   body      String
-  data      Json?            // Additional payload (orderId, etc.)
+  data      Json? // Additional payload (orderId, etc.)
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
 
@@ -235,4 +241,33 @@ model PushSubscription {
 
   @@unique([userId, endpoint])
   @@index([userId])
+}
+
+// -----------------------------------------------------------------
+// StoreCustomer � customers specific to each store
+// They can use Clerk or traditional auth, strongly partitioned by Store
+// -----------------------------------------------------------------
+model StoreCustomer {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId      String?
+  email        String
+  passwordHash String?
+  firstName    String?
+  lastName     String?
+  phone        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isActive Boolean @default(true)
+
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  orders   Order[]
+  wishlist String[] @default([])
+
+  @@unique([storeId, email])
+  @@unique([storeId, clerkId])
+  @@index([storeId])
 }

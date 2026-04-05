@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import {
   Store,
   Palette,
@@ -36,7 +37,7 @@ interface StoreSettings {
   description: string;
   currency: string;
   logoUrl: string | null;
-  faviconUrl: string | null;
+  heroImageUrl: string | null;
 }
 
 interface ThemeSettings {
@@ -85,7 +86,7 @@ const defaultStoreSettings: StoreSettings = {
   description: "",
   currency: "USD",
   logoUrl: null,
-  faviconUrl: null,
+  heroImageUrl: null,
 };
 
 const defaultThemeSettings: ThemeSettings = {
@@ -114,11 +115,11 @@ export default function SettingsPage() {
 
   // State
   const [activeTab, setActiveTab] = useState("general");
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultStoreSettings);
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
@@ -131,61 +132,60 @@ export default function SettingsPage() {
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const storeUrl = storeSettings.storeSlug ? `${baseUrl}/store/${storeSettings.storeSlug}` : "";
 
-  // Load settings
+  // Fetch settings with React Query for caching
+  const { data: settingsData, isLoading } = useQuery({
+    queryKey: ["store-settings"],
+    queryFn: async () => {
+      const origin = window.location.origin;
+      const res = await fetch(`${origin}/api/notifications/store-settings`);
+      if (!res.ok) throw new Error("Failed to fetch settings");
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Initialize state from fetched data
   useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        // Use origin to avoid locale prefix being added to API routes
-        const origin = window.location.origin;
-        const res = await fetch(`${origin}/api/notifications/store-settings`);
-        if (res.ok) {
-          const { store } = await res.json();
-          if (store) {
-            setStoreSettings({
-              storeName: store.name || "",
-              storeSlug: store.slug || "",
-              description: store.description || "",
-              currency: store.currency || "USD",
-              logoUrl: store.logoUrl || null,
-              faviconUrl: store.faviconUrl || null,
-            });
+    if (settingsData?.store && !isInitialized) {
+      const store = settingsData.store;
+      setStoreSettings({
+        storeName: store.name || "",
+        storeSlug: store.slug || "",
+        description: store.description || "",
+        currency: store.currency || "USD",
+        logoUrl: store.logoUrl || null,
+        heroImageUrl: store.heroImageUrl || null,
+      });
 
-            if (store.themeSettings) {
-              const theme = {
-                primaryColor: store.themeSettings.primaryColor || defaultThemeSettings.primaryColor,
-                secondaryColor: store.themeSettings.secondaryColor || defaultThemeSettings.secondaryColor,
-                accentColor: store.themeSettings.accentColor || defaultThemeSettings.accentColor,
-                backgroundColor: store.themeSettings.backgroundColor || defaultThemeSettings.backgroundColor,
-                foregroundColor: store.themeSettings.foregroundColor || defaultThemeSettings.foregroundColor,
-                fontFamily: store.themeSettings.fontFamily || defaultThemeSettings.fontFamily,
-                borderRadius: store.themeSettings.borderRadius || defaultThemeSettings.borderRadius,
-              };
-              setThemeSettings(theme);
-              setPreviewTheme(theme);
-            }
-
-            if (store.configuration) {
-              setFeatureSettings({
-                enableWhatsApp: store.configuration.whatsAppChat || false,
-                whatsAppNumber: store.configuration.whatsAppNumber || "",
-                enableReviews: store.configuration.reviews ?? true,
-                enablePush: store.configuration.pushNotifications ?? true,
-                enableSound: store.configuration.soundAlerts || false,
-                enableEmail: store.configuration.emailAlerts || false,
-                enableDarkMode: store.configuration.darkMode ?? true,
-              });
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load settings:", error);
-      } finally {
-        setIsLoading(false);
+      if (store.themeSettings) {
+        const theme = {
+          primaryColor: store.themeSettings.primaryColor || defaultThemeSettings.primaryColor,
+          secondaryColor: store.themeSettings.secondaryColor || defaultThemeSettings.secondaryColor,
+          accentColor: store.themeSettings.accentColor || defaultThemeSettings.accentColor,
+          backgroundColor: store.themeSettings.backgroundColor || defaultThemeSettings.backgroundColor,
+          foregroundColor: store.themeSettings.foregroundColor || defaultThemeSettings.foregroundColor,
+          fontFamily: store.themeSettings.fontFamily || defaultThemeSettings.fontFamily,
+          borderRadius: store.themeSettings.borderRadius || defaultThemeSettings.borderRadius,
+        };
+        setThemeSettings(theme);
+        setPreviewTheme(theme);
       }
-    };
 
-    loadSettings();
-  }, []);
+      if (store.configuration) {
+        setFeatureSettings({
+          enableWhatsApp: store.configuration.whatsAppChat || false,
+          whatsAppNumber: store.configuration.whatsAppNumber || "",
+          enableReviews: store.configuration.reviews ?? true,
+          enablePush: store.configuration.pushNotifications ?? true,
+          enableSound: store.configuration.soundAlerts || false,
+          enableEmail: store.configuration.emailAlerts || false,
+          enableDarkMode: store.configuration.darkMode ?? true,
+        });
+      }
+      setIsInitialized(true);
+      setHasChanges(false);
+    }
+  }, [settingsData, isInitialized]);
 
   // Track changes
   useEffect(() => {
@@ -212,7 +212,7 @@ export default function SettingsPage() {
             description: storeSettings.description,
             currency: storeSettings.currency,
             logoUrl: storeSettings.logoUrl,
-            faviconUrl: storeSettings.faviconUrl,
+            heroImageUrl: storeSettings.heroImageUrl,
           },
         }),
       });
@@ -519,7 +519,7 @@ export default function SettingsPage() {
                   Store Identity
                 </CardTitle>
                 <CardDescription>
-                  Upload your store logo and favicon to build brand recognition
+                  Upload your store logo and hero image to build brand recognition
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -540,27 +540,29 @@ export default function SettingsPage() {
                       size="lg"
                       shape="square"
                       recommendedSize="512x512px"
-                      description="PNG, JPG up to 5MB"
+                      description="PNG with transparency supported. Cropping is optional."
+                      enableCrop={true}
                     />
                   </div>
 
-                  {/* Favicon Upload */}
+                  {/* Hero Image Upload */}
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-sm font-semibold text-[var(--foreground)]">Favicon</h3>
+                      <h3 className="text-sm font-semibold text-[var(--foreground)]">Hero Image</h3>
                       <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                        Small icon for browser tabs. Square format works best.
+                        Main banner image for your store homepage. Upload as-is or crop to fit.
                       </p>
                     </div>
                     <ImageUpload
-                      value={storeSettings.faviconUrl || undefined}
+                      value={storeSettings.heroImageUrl || undefined}
                       onChange={(url) =>
-                        setStoreSettings((prev) => ({ ...prev, faviconUrl: url }))
+                        setStoreSettings((prev) => ({ ...prev, heroImageUrl: url }))
                       }
-                      size="md"
+                      size="lg"
                       shape="square"
-                      recommendedSize="32x32px"
-                      description="PNG, ICO up to 1MB"
+                      recommendedSize="1920x600px"
+                      description="PNG, JPG up to 5MB. Cropping is optional."
+                      enableCrop={true}
                     />
                   </div>
                 </div>
