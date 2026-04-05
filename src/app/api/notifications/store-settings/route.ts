@@ -8,7 +8,7 @@ export async function GET() {
     console.log("[store-settings GET] userId:", userId);
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    let user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { clerkId: userId },
       include: { stores: { take: 1 } },
     });

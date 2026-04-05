@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
 
     // Generate unique slug
-    let baseSlug = slugify(data.name);
+    const baseSlug = slugify(data.name);
     let slug = baseSlug;
     let counter = 1;
     
