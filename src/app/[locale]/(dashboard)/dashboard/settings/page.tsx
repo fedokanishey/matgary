@@ -135,7 +135,9 @@ export default function SettingsPage() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const res = await fetch("/api/notifications/store-settings");
+        // Use origin to avoid locale prefix being added to API routes
+        const origin = window.location.origin;
+        const res = await fetch(`${origin}/api/notifications/store-settings`);
         if (res.ok) {
           const { store } = await res.json();
           if (store) {
@@ -196,8 +198,10 @@ export default function SettingsPage() {
     setSaveSuccess(false);
 
     try {
+      const origin = window.location.origin;
+      
       // Save general settings
-      await fetch("/api/notifications/store-settings", {
+      const generalRes = await fetch(`${origin}/api/notifications/store-settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -213,8 +217,14 @@ export default function SettingsPage() {
         }),
       });
 
+      if (!generalRes.ok) {
+        const err = await generalRes.json();
+        console.error("Failed to save general settings:", err);
+        throw new Error(err.error || "Failed to save general settings");
+      }
+
       // Save theme settings
-      await fetch("/api/notifications/store-settings", {
+      const themeRes = await fetch(`${origin}/api/notifications/store-settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -223,8 +233,14 @@ export default function SettingsPage() {
         }),
       });
 
+      if (!themeRes.ok) {
+        const err = await themeRes.json();
+        console.error("Failed to save theme settings:", err);
+        throw new Error(err.error || "Failed to save theme settings");
+      }
+
       // Save feature settings
-      await fetch("/api/notifications/store-settings", {
+      const featuresRes = await fetch(`${origin}/api/notifications/store-settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -241,11 +257,18 @@ export default function SettingsPage() {
         }),
       });
 
+      if (!featuresRes.ok) {
+        const err = await featuresRes.json();
+        console.error("Failed to save features settings:", err);
+        throw new Error(err.error || "Failed to save features settings");
+      }
+
       setSaveSuccess(true);
       setHasChanges(false);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error("Failed to save settings:", error);
+      alert("Failed to save settings. Check console for details.");
     } finally {
       setIsSaving(false);
     }

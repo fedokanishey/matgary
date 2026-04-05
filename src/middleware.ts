@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "@/i18n/routing";
+import { NextResponse } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -10,13 +11,22 @@ const isPublicRoute = createRouteMatcher([
   "/:locale/sign-in(.*)",
   "/:locale/sign-up(.*)",
   "/:locale/store(.*)",
-  "/api/webhooks(.*)",
-  "/api/notifications/send(.*)",
+  "/api(.*)",
   "/manifest.webmanifest",
   "/sw.js",
 ]);
 
+const isApiRoute = createRouteMatcher(["/api(.*)"]);
+
 export default clerkMiddleware(async (auth, req) => {
+  // Skip intl middleware for API routes
+  if (isApiRoute(req)) {
+    if (!isPublicRoute(req)) {
+      await auth.protect();
+    }
+    return NextResponse.next();
+  }
+
   if (!isPublicRoute(req)) {
     await auth.protect();
   }
