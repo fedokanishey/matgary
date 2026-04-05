@@ -52,6 +52,12 @@ export async function POST(
     }
 
     // Verify password
+    if (!customer.passwordHash) {
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
     const isValidPassword = await bcrypt.compare(password, customer.passwordHash);
     if (!isValidPassword) {
       return NextResponse.json(
@@ -79,8 +85,7 @@ export async function POST(
         firstName: customer.firstName,
         lastName: customer.lastName,
         phone: customer.phone,
-        avatarUrl: customer.avatarUrl,
-      },
+              },
       token,
     });
   } catch (error) {
@@ -91,3 +96,4 @@ export async function POST(
     );
   }
 }
+

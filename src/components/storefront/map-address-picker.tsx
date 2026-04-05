@@ -21,7 +21,13 @@ interface MapAddressPickerProps {
   defaultLocation?: { lat: number; lng: number };
 }
 
-function LocationMarker({ position, setPosition, onLocationSelect }: any) {
+interface LocationMarkerProps {
+  position: L.LatLng | null;
+  setPosition: (pos: L.LatLng) => void;
+  onLocationSelect: (lat: number, lng: number) => void;
+}
+
+function LocationMarker({ position, setPosition, onLocationSelect }: LocationMarkerProps) {
   const map = useMapEvents({
     click(e) {
       setPosition(e.latlng);

@@ -118,7 +118,7 @@ export default function ProductsPage() {
   const categories = data?.categories || [];
 
   // Filter products
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = products.filter((product: Product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = filterCategory === "all" || product.categoryId === filterCategory;
     const matchesStatus =
@@ -276,7 +276,7 @@ export default function ProductsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
+                  {categories.map((cat: Category) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.name}
                   </SelectItem>
@@ -303,7 +303,7 @@ export default function ProductsPage() {
       {/* Products Grid */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredProducts.map((product) => (
+          {filteredProducts.map((product: Product) => (
             <Card
               key={product.id}
               className={cn(
@@ -486,7 +486,7 @@ export default function ProductsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">No category</SelectItem>
-                    {categories.map((cat) => (
+                    {categories.map((cat: Category) => (
                       <SelectItem key={cat.id} value={cat.id}>
                         {cat.name}
                       </SelectItem>

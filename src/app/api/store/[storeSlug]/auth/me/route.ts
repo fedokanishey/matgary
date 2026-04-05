@@ -55,10 +55,7 @@ export async function GET(
         firstName: true,
         lastName: true,
         phone: true,
-        avatarUrl: true,
-        favorites: true,
-        addresses: true,
-      },
+                wishlist: true,      },
     });
 
     if (!customer) {
@@ -77,3 +74,6 @@ export async function GET(
     );
   }
 }
+
+
+

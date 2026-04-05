@@ -92,8 +92,7 @@ export async function POST(
         firstName: customer.firstName,
         lastName: customer.lastName,
         phone: customer.phone,
-        avatarUrl: customer.avatarUrl,
-      },
+              },
       token,
     });
   } catch (error) {
@@ -104,3 +103,4 @@ export async function POST(
     );
   }
 }
+
