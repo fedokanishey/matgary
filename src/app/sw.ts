@@ -21,7 +21,7 @@ self.addEventListener("push", (event) => {
   const payload = event.data.json();
   const { title, body, icon, badge, url, data } = payload;
 
-  const options: NotificationOptions = {
+  const options = {
     body,
     icon: icon || "/icons/icon-192x192.png",
     badge: badge || "/icons/icon-72x72.png",
@@ -33,7 +33,7 @@ self.addEventListener("push", (event) => {
       { action: "open", title: "View Order" },
       { action: "dismiss", title: "Dismiss" },
     ],
-  };
+  } as NotificationOptions;
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
