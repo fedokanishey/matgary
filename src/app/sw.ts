@@ -1,10 +1,9 @@
+/// <reference lib="webworker" />
 import { defaultCache } from "@serwist/next/worker";
 import { type PrecacheEntry, Serwist } from "serwist";
 
-declare const self: Window & typeof globalThis & {
+declare const self: ServiceWorkerGlobalScope & {
   __SW_MANIFEST: (PrecacheEntry | string)[];
-  registration: ServiceWorkerRegistration;
-  clients: Clients;
 };
 
 const serwist = new Serwist({
