@@ -34,6 +34,20 @@ export default function StoreClientSignUp({
 
   const { signUp, verifySignupOtp } = useCustomerAuth(storeId, storeSlug);
 
+  const goToStoreHome = () => {
+    const destination = `/store/${storeSlug}`;
+
+    router.replace(destination);
+    router.refresh();
+
+    // Fallback for production edge cases where client navigation stalls.
+    window.setTimeout(() => {
+      if (window.location.pathname.includes(`/store/${storeSlug}/auth/`)) {
+        window.location.assign(destination);
+      }
+    }, 1200);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -66,7 +80,7 @@ export default function StoreClientSignUp({
       if (res.requiresOtp) {
         setStep("verify");
       } else {
-        router.push(`/${locale}/store/${storeSlug}/account`);
+        goToStoreHome();
       }
       setLoading(false);
     } else {
@@ -83,7 +97,7 @@ export default function StoreClientSignUp({
     const res = await verifySignupOtp({ email, otp });
 
     if (res.success) {
-      router.push(`/${locale}/store/${storeSlug}/account`);
+      goToStoreHome();
       return;
     }
 

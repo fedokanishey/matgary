@@ -43,24 +43,44 @@ export default function StoreClientLogin({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     setLoading(true);
     setError("");
 
-    const res = await login({ email, password, rememberMe });
-    if (res.success) {
-      try {
-        if (rememberMe) {
-          localStorage.setItem(rememberedEmailKey, email.trim().toLowerCase());
-        } else {
-          localStorage.removeItem(rememberedEmailKey);
+    try {
+      const res = await login({ email, password, rememberMe });
+      if (res.success) {
+        try {
+          if (rememberMe) {
+            localStorage.setItem(rememberedEmailKey, email.trim().toLowerCase());
+          } else {
+            localStorage.removeItem(rememberedEmailKey);
+          }
+        } catch {
+          // Ignore localStorage access errors.
         }
-      } catch {
-        // Ignore localStorage access errors.
+
+        const destination = `/store/${storeSlug}`;
+
+        // Prefer client-side navigation for a smooth UX.
+        router.replace(destination);
+        router.refresh();
+
+        // Fallback for production edge cases where client navigation stalls.
+        window.setTimeout(() => {
+          if (window.location.pathname.includes(`/store/${storeSlug}/auth/login`)) {
+            window.location.assign(destination);
+          }
+        }, 1200);
+
+        return;
       }
 
-      router.push(`/${locale}/store/${storeSlug}/account`);
-    } else {
       setError(res.error || (isAr ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during sign in"));
+    } catch {
+      setError(isAr ? "فشل الاتصال بالخادم" : "Failed to connect to server");
+    } finally {
       setLoading(false);
     }
   };
