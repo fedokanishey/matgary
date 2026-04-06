@@ -44,10 +44,30 @@ export function AccountClientPage({
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null,
   );
+  const [address, setAddress] = useState<string | null>(null);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
-  const handleLocationSelect = (lat: number, lng: number) => {
+  const getAddress = async (lat: number, lng: number) => {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+    );
+    const data = await res.json();
+    return data.display_name;
+  };
+
+  const handleLocationSelect = async (lat: number, lng: number) => {
     setLocation({ lat, lng });
     setAddressSaved(false);
+    setIsLoadingAddress(true);
+    try {
+      const addressName = await getAddress(lat, lng);
+      setAddress(addressName);
+    } catch (error) {
+      console.error("Failed to fetch address", error);
+      setAddress(null);
+    } finally {
+      setIsLoadingAddress(false);
+    }
   };
 
   const handleSaveAddress = () => {
@@ -183,13 +203,15 @@ export function AccountClientPage({
                   </div>
                   <div className="flex flex-col text-left">
                     <h3 className="font-semibold text-blue-900">
-                      {isAr ? "الإحداثيات المحددة" : "Selected Coordinates"}
+                      {isAr ? "العنوان المحدد" : "Selected Address"}
                     </h3>
                     <p
-                      className="text-sm font-mono text-blue-700 mt-1"
-                      style={{ direction: "ltr" }}
+                      className="text-sm text-blue-700 mt-1"
+                      style={{ direction: isAr ? "rtl" : "ltr" }}
                     >
-                      {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                      {isLoadingAddress 
+                        ? (isAr ? "جاري جلب العنوان..." : "Fetching address...") 
+                        : address || `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`}
                     </p>
                   </div>
                 </div>
