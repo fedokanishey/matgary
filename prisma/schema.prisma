@@ -264,10 +264,39 @@ model StoreCustomer {
   storeId String @db.ObjectId
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  orders   Order[]
-  wishlist String[] @default([])
+  orders    Order[]
+  wishlist  String[] @default([])
+  cartItems CartItem[]
+
+  refreshTokens CustomerRefreshToken[]
 
   @@unique([storeId, email])
   @@unique([storeId, clerkId])
   @@index([storeId])
+}
+
+// -----------------------------------------------------------------
+// CartItem for multi-tenant customer cart
+// -----------------------------------------------------------------
+model CartItem {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String  @db.ObjectId
+  quantity   Int
+  customerId String  @db.ObjectId
+  customer   StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+// -----------------------------------------------------------------
+// CustomerRefreshToken for multi-tenant customer auth
+// -----------------------------------------------------------------
+model CustomerRefreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  customerId String @db.ObjectId
+  customer   StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
 }

@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import StoreClientLogin from "./client-page";
+import StoreClientForgotPassword from "./client-page";
 import { notFound } from "next/navigation";
 
-export default async function LoginPage({
+export default async function ForgotPasswordPage({
   params,
 }: {
   params: Promise<{ locale: string; storeSlug: string }>;
@@ -19,7 +19,7 @@ export default async function LoginPage({
   }
 
   return (
-    <StoreClientLogin 
+    <StoreClientForgotPassword 
       storeId={store.id} 
       storeSlug={storeSlug} 
       locale={locale} 

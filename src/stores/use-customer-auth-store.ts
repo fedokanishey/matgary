@@ -45,9 +45,13 @@ function createAuthStore(storeSlug: string) {
   );
 }
 
-export function useCustomerAuthStore(storeSlug: string) {
+export function getCustomerAuthStore(storeSlug: string) {
   if (!authStores.has(storeSlug)) {
     authStores.set(storeSlug, createAuthStore(storeSlug));
   }
   return authStores.get(storeSlug)!;
+}
+
+export function useCustomerAuthStore(storeSlug: string) {
+  return getCustomerAuthStore(storeSlug);
 }

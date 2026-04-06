@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useCustomerAuth } from "@/hooks/use-customer-auth";
 
 // Map needs to be imported dynamically because Leaflet requires window
 const MapAddressPicker = dynamic(
@@ -35,10 +36,12 @@ interface AccountClientPageProps {
 export function AccountClientPage({
   locale,
   storeSlug,
+  storeId,
   user,
-}: AccountClientPageProps) {
+}: AccountClientPageProps & { storeId: string }) {
   const isAr = locale === "ar";
-  const { signOut } = useClerk();
+  const router = useRouter();
+  const { logout } = useCustomerAuth(storeId, storeSlug);
   const basePath = `/${locale}/store/${storeSlug}`;
   const [addressSaved, setAddressSaved] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
@@ -125,7 +128,10 @@ export function AccountClientPage({
             </button>
             <hr className="my-2 border-gray-100" />
             <button
-              onClick={() => signOut({ redirectUrl: basePath + "/auth/login" })}
+              onClick={async () => {
+                await logout();
+                router.push(`${basePath}/auth/login`);
+              }}
               className="w-full text-start px-4 py-2 font-medium text-red-600 hover:bg-red-50 rounded-lg"
             >
               {isAr ? "تسجيل الخروج" : "Sign Out"}

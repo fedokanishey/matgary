@@ -9,7 +9,6 @@ import { db } from "@/lib/db";
  */
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const headersList = await headers();
-  const host = headersList.get("host") || "localhost:3000";
   const referer = headersList.get("referer") || "";
 
   // Try to extract storeSlug from the referer URL

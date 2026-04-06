@@ -23,7 +23,6 @@ interface StorefrontHeaderProps {
 export function StorefrontHeader({ 
   store, 
   locale, 
-  supportedLocales = ["en", "ar"],
   darkModeEnabled = true,
 }: StorefrontHeaderProps) {
   const router = useRouter();
@@ -37,13 +36,80 @@ export function StorefrontHeader({
   const cartStore = useCartStore(store.slug);
   const favoritesStore = useFavoritesStore(store.slug);
   const authStore = useCustomerAuthStore(store.slug);
+  const customer = authStore((s) => s.customer);
+  const setCustomer = authStore((s) => s.setCustomer);
+
+  useEffect(() => {
+    if (customer) return;
+
+    let cancelled = false;
+
+    const hydrateCustomer = async () => {
+      try {
+        let res = await fetch("/api/customer/me", { credentials: "include" });
+
+        if (res.status === 401) {
+          const refreshRes = await fetch("/api/customer/refresh", {
+            method: "POST",
+            credentials: "include",
+          });
+
+          if (refreshRes.ok) {
+            res = await fetch("/api/customer/me", { credentials: "include" });
+          }
+        }
+
+        if (!res.ok) {
+          if (!cancelled) {
+            setCustomer(null);
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (data.success && data.customer.store?.slug === store.slug) {
+          setCustomer(data.customer);
+        } else {
+          setCustomer(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setCustomer(null);
+        }
+      }
+    };
+
+    hydrateCustomer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [store.slug, customer, setCustomer]);
   
   const itemCount = cartStore((s) => s.getItemCount());
   const favCount = favoritesStore((s) => s.getFavoritesCount());
   const openCart = cartStore((s) => s.openCart);
-  const customer = authStore((s) => s.customer);
+
+  const fetchCart = cartStore((s) => s.fetchCart);
+  const resetLocalCart = cartStore((s) => s.resetLocalCart);
+  
+  const fetchFavorites = favoritesStore((s) => s.fetchFavorites);
+  const resetLocalFavorites = favoritesStore((s) => s.resetLocalFavorites);
 
   const basePath = `/${locale}/store/${store.slug}`;
+
+  // Sync stores on customer login state change
+  useEffect(() => {
+    if (customer?.id) {
+      fetchCart();
+      fetchFavorites();
+    } else {
+      resetLocalCart();
+      resetLocalFavorites();
+    }
+  }, [customer?.id, fetchCart, fetchFavorites, resetLocalCart, resetLocalFavorites]);
 
   // Initialize dark mode from localStorage
   useEffect(() => {
@@ -237,7 +303,7 @@ export function StorefrontHeader({
 
               {/* Profile */}
               <Link
-                href={customer ? `${basePath}/account` : `${basePath}/auth/login`}
+                href={`${basePath}/account`}
                 className="p-2 rounded-lg hover:bg-[var(--muted)] transition-colors hidden sm:flex"
               >
                 {customer ? (

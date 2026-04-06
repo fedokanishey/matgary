@@ -64,6 +64,7 @@ export default async function LocaleLayout({
     <ClerkProvider>
       <html lang={locale} dir={dir} className={fontClass} suppressHydrationWarning>
         <body
+          suppressHydrationWarning
           className={`min-h-screen bg-[var(--background,#ffffff)] text-[var(--foreground,#0f172a)] antialiased ${
             isRtl ? "font-[var(--font-cairo)]" : "font-[var(--font-inter)]"
           }`}
