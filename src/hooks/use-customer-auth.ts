@@ -24,6 +24,14 @@ interface AuthActionResponse {
   error?: string;
 }
 
+interface SignupOtpInitResponse {
+  success: boolean;
+  requiresOtp?: boolean;
+  message?: string;
+  devOtp?: string;
+  error?: string;
+}
+
 type RequestJsonResult<T> = {
   ok: boolean;
   status: number;
@@ -154,10 +162,33 @@ export function useCustomerAuth(storeId: string, storeSlug: string) {
   };
 
   const signUp = async (info: Record<string, unknown>) => {
-    const result = await requestJson<AuthActionResponse>("/api/customer/signup", {
+    const result = await requestJson<SignupOtpInitResponse>("/api/customer/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...(info as object), storeId }),
+    });
+
+    if (result.ok && result.data?.success) {
+      return {
+        success: true,
+        requiresOtp: Boolean(result.data.requiresOtp),
+        message: result.data.message,
+        devOtp: result.data.devOtp,
+      };
+    }
+
+    if (result.networkError) {
+      return { success: false, error: "Network error. Please check your connection and try again." };
+    }
+
+    return { success: false, error: result.data?.error || "Failed to sign up." };
+  };
+
+  const verifySignupOtp = async (payload: { email: string; otp: string }) => {
+    const result = await requestJson<AuthActionResponse>("/api/customer/verify-signup-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, storeId }),
     });
 
     if (result.ok && result.data?.success && result.data.customer) {
@@ -169,7 +200,7 @@ export function useCustomerAuth(storeId: string, storeSlug: string) {
       return { success: false, error: "Network error. Please check your connection and try again." };
     }
 
-    return { success: false, error: result.data?.error || "Failed to sign up." };
+    return { success: false, error: result.data?.error || "Failed to verify OTP." };
   };
 
   const logout = async () => {
@@ -186,6 +217,7 @@ export function useCustomerAuth(storeId: string, storeSlug: string) {
     isLoading,
     login,
     signUp,
+    verifySignupOtp,
     logout,
   };
 }

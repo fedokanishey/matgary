@@ -55,6 +55,8 @@ model Store {
   orders         Order[]
   notifications  Notification[]
   storeCustomers StoreCustomer[]
+  passwordOtps   CustomerPasswordOtp[]
+  signupOtps     CustomerSignupOtp[]
 
   @@index([userId])
 }
@@ -249,7 +251,6 @@ model PushSubscription {
 // -----------------------------------------------------------------
 model StoreCustomer {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId      String?
   email        String
   passwordHash String?
   firstName    String?
@@ -269,9 +270,9 @@ model StoreCustomer {
   cartItems CartItem[]
 
   refreshTokens CustomerRefreshToken[]
+  passwordOtps  CustomerPasswordOtp[]
 
   @@unique([storeId, email])
-  @@unique([storeId, clerkId])
   @@index([storeId])
 }
 
@@ -299,4 +300,53 @@ model CustomerRefreshToken {
   customer   StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
+}
+
+// -----------------------------------------------------------------
+// CustomerPasswordOtp for OTP-based password reset flow
+// -----------------------------------------------------------------
+model CustomerPasswordOtp {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  email          String
+  otpHash        String
+  resetTokenHash String?
+  attempts       Int      @default(0)
+  expiresAt      DateTime
+  verifiedAt     DateTime?
+  usedAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  customerId String        @db.ObjectId
+  customer   StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  storeId    String        @db.ObjectId
+  store      Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, createdAt])
+  @@index([storeId, email, createdAt])
+  @@index([expiresAt])
+}
+
+// -----------------------------------------------------------------
+// CustomerSignupOtp for OTP-based signup verification flow
+// -----------------------------------------------------------------
+model CustomerSignupOtp {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String
+  otpHash      String
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  phone        String?
+  attempts     Int      @default(0)
+  expiresAt    DateTime
+  usedAt       DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, email, createdAt])
+  @@index([expiresAt])
 }

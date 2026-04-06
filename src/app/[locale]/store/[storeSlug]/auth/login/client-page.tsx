@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCustomerAuth } from "@/hooks/use-customer-auth";
 import Link from "next/link";
@@ -22,8 +22,24 @@ export default function StoreClientLogin({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const rememberedEmailKey = useMemo(
+    () => `customer_remember_email_${storeSlug}`,
+    [storeSlug]
+  );
 
   const { login } = useCustomerAuth(storeId, storeSlug);
+
+  useEffect(() => {
+    try {
+      const rememberedEmail = localStorage.getItem(rememberedEmailKey);
+      if (rememberedEmail) {
+        setEmail(rememberedEmail);
+        setRememberMe(true);
+      }
+    } catch {
+      // Ignore localStorage access errors.
+    }
+  }, [rememberedEmailKey]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +48,16 @@ export default function StoreClientLogin({
 
     const res = await login({ email, password, rememberMe });
     if (res.success) {
+      try {
+        if (rememberMe) {
+          localStorage.setItem(rememberedEmailKey, email.trim().toLowerCase());
+        } else {
+          localStorage.removeItem(rememberedEmailKey);
+        }
+      } catch {
+        // Ignore localStorage access errors.
+      }
+
       router.push(`/${locale}/store/${storeSlug}/account`);
     } else {
       setError(res.error || (isAr ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during sign in"));
@@ -69,7 +95,7 @@ export default function StoreClientLogin({
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[var(--primary)] outline-none transition-all"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-(--primary) outline-none transition-all"
               placeholder="you@example.com"
             />
           </div>
@@ -84,7 +110,7 @@ export default function StoreClientLogin({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[var(--primary)] outline-none transition-all pr-12"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-(--primary) outline-none transition-all pr-12"
                 placeholder="••••••••"
               />
               <button
@@ -111,14 +137,25 @@ export default function StoreClientLogin({
                 <input
                   type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setRememberMe(checked);
+
+                    try {
+                      if (!checked) {
+                        localStorage.removeItem(rememberedEmailKey);
+                      }
+                    } catch {
+                      // Ignore localStorage access errors.
+                    }
+                  }}
+                  className="rounded border-gray-300 text-(--primary) focus:ring-(--primary)"
                 />
                 <span className="text-gray-600">{isAr ? "تذكرني" : "Remember me"}</span>
               </label>
               <Link
                 href={`/${locale}/store/${storeSlug}/auth/forgot-password`}
-                className="text-[var(--primary)] font-medium hover:underline"
+                className="text-(--primary) font-medium hover:underline"
               >
                 {isAr ? "نسيت كلمة المرور؟" : "Forgot Password?"}
               </Link>
@@ -128,7 +165,7 @@ export default function StoreClientLogin({
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--primary)] text-white font-medium py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-(--primary) text-white font-medium py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {loading ? (isAr ? "جاري تسجيل الدخول..." : "Signing in...") : (isAr ? "تسجيل الدخول" : "Sign In")}
           </button>
@@ -138,7 +175,7 @@ export default function StoreClientLogin({
           {isAr ? "ليس لديك حساب؟" : "Don't have an account?"}{" "}
           <Link
             href={`/${locale}/store/${storeSlug}/auth/signup`}
-            className="text-[var(--primary)] font-medium hover:underline"
+            className="text-(--primary) font-medium hover:underline"
           >
             {isAr ? "إنشاء حساب" : "Sign up"}
           </Link>

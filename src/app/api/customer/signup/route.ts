@@ -1,11 +1,37 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import { signCustomerAccessToken, signCustomerRefreshToken } from "@/lib/customer-auth";
-import { Prisma } from "@prisma/client";
+import { sendSignupOtpEmail } from "@/lib/mailer";
+import {
+  generateSignupOtp,
+  getSignupOtpExpiryDate,
+  hashSignupOtp,
+} from "@/lib/customer-signup-otp";
+import { maintainCustomerOtpStorage } from "@/lib/customer-otp-maintenance";
+
+const SUCCESS_MESSAGE = "OTP sent successfully. Please check your email to complete signup.";
+
+type SignupOtpWriteDelegate = {
+  deleteMany: (args: { where: { storeId: string; email: string } }) => Promise<unknown>;
+  create: (args: {
+    data: {
+      storeId: string;
+      email: string;
+      otpHash: string;
+      passwordHash: string;
+      firstName: string | null;
+      lastName: string | null;
+      phone: string | null;
+      expiresAt: Date;
+      usedAt: null;
+    };
+  }) => Promise<unknown>;
+};
 
 export async function POST(req: Request) {
   try {
+    await maintainCustomerOtpStorage();
+
     let body: {
       email?: string;
       password?: string;
@@ -35,9 +61,27 @@ export async function POST(req: Request) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check if customer exists in THIS store
-    const existingCustomer = await prisma.storeCustomer.findFirst({
-      where: { email: normalizedEmail, storeId },
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      select: { id: true, name: true, isActive: true },
+    });
+
+    if (!store || !store.isActive) {
+      return NextResponse.json(
+        { success: false, error: "Store not found." },
+        { status: 404 }
+      );
+    }
+
+    // Check if customer already exists in THIS store.
+    const existingCustomer = await prisma.storeCustomer.findUnique({
+      where: {
+        storeId_email: {
+          storeId,
+          email: normalizedEmail,
+        },
+      },
+      select: { id: true },
     });
 
     if (existingCustomer) {
@@ -48,67 +92,67 @@ export async function POST(req: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const localClerkId = `local:${storeId}:${normalizedEmail}`;
+    const otp = generateSignupOtp();
+    const otpHash = hashSignupOtp(storeId, normalizedEmail, otp);
+    const expiresAt = getSignupOtpExpiryDate();
 
-    const customer = await prisma.storeCustomer.create({
-      data: {
-        email: normalizedEmail,
-        passwordHash,
-        storeId,
-        firstName,
-        lastName,
-        phone,
-        clerkId: localClerkId,
-      },
+    await prisma.$transaction(async (tx) => {
+      const otpTx = (
+        tx as unknown as { customerSignupOtp: SignupOtpWriteDelegate }
+      ).customerSignupOtp;
+
+      await otpTx.deleteMany({
+        where: {
+          storeId,
+          email: normalizedEmail,
+        },
+      });
+
+      await otpTx.create({
+        data: {
+          storeId,
+          email: normalizedEmail,
+          otpHash,
+          passwordHash,
+          firstName: firstName?.trim() || null,
+          lastName: lastName?.trim() || null,
+          phone: phone?.trim() || null,
+          expiresAt,
+          usedAt: null,
+        },
+      });
     });
 
-    const payload = { customerId: customer.id, storeId: customer.storeId };
-    const accessToken = await signCustomerAccessToken(payload);
-    const refreshTokenExp = Math.floor((Date.now() + 7 * 24 * 60 * 60 * 1000) / 1000);
-    const refreshToken = await signCustomerRefreshToken({ ...payload, exp: refreshTokenExp });
+    try {
+      await sendSignupOtpEmail({
+        to: normalizedEmail,
+        otp,
+        storeName: store.name,
+      });
+    } catch (mailError) {
+      const isSmtpConfigIssue =
+        mailError instanceof Error &&
+        mailError.message.includes("SMTP configuration is missing");
 
-    // Store refresh token in DB
-    await prisma.customerRefreshToken.create({
-      data: {
-        token: refreshToken,
-        expiresAt: new Date(refreshTokenExp * 1000),
-        customerId: customer.id,
-      },
-    });
+      if (process.env.NODE_ENV !== "production" && isSmtpConfigIssue) {
+        return NextResponse.json({
+          success: true,
+          requiresOtp: true,
+          message: "DEV MODE: SMTP is not configured, so no email was sent. Use the OTP below for local testing.",
+          devOtp: otp,
+          devEmailDisabled: true,
+        });
+      }
 
-    const response = NextResponse.json({
-      success: true,
-      customer: { id: customer.id, email: customer.email, firstName: customer.firstName, lastName: customer.lastName },
-    });
-
-    response.cookies.set({
-      name: "customer_access_token",
-      value: accessToken,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60, // 15 mins
-      path: "/",
-    });
-
-    response.cookies.set({
-      name: "customer_refresh_token",
-      value: refreshToken,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: "/",
-    });
-
-    return response;
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return NextResponse.json(
-        { success: false, error: "Email is already registered for this store." },
-        { status: 400 }
-      );
+      throw mailError;
     }
+
+    return NextResponse.json({
+      success: true,
+      requiresOtp: true,
+      message: SUCCESS_MESSAGE,
+    });
+  } catch (error) {
 
     console.error("[CUSTOMER_SIGNUP]", error);
     return NextResponse.json({ success: false, error: "Failed to sign up customer" }, { status: 500 });

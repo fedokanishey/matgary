@@ -41,6 +41,24 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
+    if (process.env.NODE_ENV !== "production") {
+      if ("serviceWorker" in navigator) {
+        void navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((registration) => {
+            void registration.unregister();
+          });
+        });
+      }
+
+      if ("caches" in window) {
+        void caches.keys().then((keys) => {
+          void Promise.all(keys.map((key) => caches.delete(key)));
+        });
+      }
+
+      return;
+    }
+
     if ("Notification" in window && "serviceWorker" in navigator) {
       setIsSupported(true);
       setPermission(Notification.permission);
