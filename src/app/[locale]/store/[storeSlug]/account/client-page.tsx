@@ -33,6 +33,12 @@ interface AccountClientPageProps {
   };
 }
 
+interface ReverseGeocodeApiResponse {
+  success: boolean;
+  address?: string | null;
+  error?: string;
+}
+
 export function AccountClientPage({
   locale,
   storeSlug,
@@ -51,11 +57,30 @@ export function AccountClientPage({
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
   const getAddress = async (lat: number, lng: number) => {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-    );
-    const data = await res.json();
-    return data.display_name;
+    try {
+      const response = await fetch(
+        `/api/geocode/reverse?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&locale=${encodeURIComponent(locale)}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        }
+      );
+
+      let data: ReverseGeocodeApiResponse | null = null;
+      try {
+        data = (await response.json()) as ReverseGeocodeApiResponse;
+      } catch {
+        data = null;
+      }
+
+      if (!response.ok || !data?.success) {
+        return null;
+      }
+
+      return data.address || null;
+    } catch {
+      return null;
+    }
   };
 
   const handleLocationSelect = async (lat: number, lng: number) => {
@@ -64,9 +89,8 @@ export function AccountClientPage({
     setIsLoadingAddress(true);
     try {
       const addressName = await getAddress(lat, lng);
-      setAddress(addressName);
-    } catch (error) {
-      console.error("Failed to fetch address", error);
+      setAddress(addressName || null);
+    } catch {
       setAddress(null);
     } finally {
       setIsLoadingAddress(false);
@@ -172,7 +196,7 @@ export function AccountClientPage({
             </p>
 
             {/* Render the Leaflet map */}
-            <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm mb-6 max-h-[300px] sm:max-h-[500px]">
+            <div className="relative z-0 rounded-lg overflow-hidden border border-gray-200 shadow-sm mb-6 max-h-[300px] sm:max-h-[500px]">
               <MapAddressPicker onLocationSelect={handleLocationSelect} />
             </div>
 

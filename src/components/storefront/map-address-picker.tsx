@@ -88,8 +88,9 @@ export function MapAddressPicker({ onLocationSelect, defaultLocation }: MapAddre
         </Button>
       </div>
       
-      <div className="h-[300px] sm:h-[400px] w-full rounded-md overflow-hidden border border-gray-200">
+      <div className="map-address-picker relative z-0 h-[300px] sm:h-[400px] w-full rounded-md overflow-hidden border border-gray-200">
         <MapContainer 
+          className="h-full w-full"
           center={position || defaultCenter} 
           zoom={13} 
           scrollWheelZoom={true} 
@@ -102,6 +103,41 @@ export function MapAddressPicker({ onLocationSelect, defaultLocation }: MapAddre
           <LocationMarker position={position} setPosition={setPosition} onLocationSelect={onLocationSelect} />
         </MapContainer>
       </div>
+
+      <style jsx global>{`
+        .map-address-picker .leaflet-container {
+          z-index: 0;
+        }
+
+        .map-address-picker .leaflet-tile-pane {
+          z-index: 1;
+        }
+
+        .map-address-picker .leaflet-overlay-pane {
+          z-index: 2;
+        }
+
+        .map-address-picker .leaflet-shadow-pane {
+          z-index: 3;
+        }
+
+        .map-address-picker .leaflet-marker-pane {
+          z-index: 4;
+        }
+
+        .map-address-picker .leaflet-tooltip-pane {
+          z-index: 5;
+        }
+
+        .map-address-picker .leaflet-popup-pane {
+          z-index: 6;
+        }
+
+        .map-address-picker .leaflet-top,
+        .map-address-picker .leaflet-bottom {
+          z-index: 7;
+        }
+      `}</style>
     </div>
   );
 }
