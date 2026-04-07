@@ -1,19 +1,135 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatPrice } from "@/lib/utils";
+
+interface DashboardCustomer {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: string;
+  totalOrders: number;
+  totalSpent: number;
+  lastOrderAt: string | null;
+}
 
 export default function CustomersPage() {
   const t = useTranslations("dashboard.customers");
+  const [customers, setCustomers] = useState<DashboardCustomer[]>([]);
+  const [currency, setCurrency] = useState("EGP");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    let canceled = false;
+
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetch("/api/dashboard/customers", { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("Failed to load customers");
+        }
+
+        const data = await res.json();
+        if (!canceled) {
+          setCustomers(Array.isArray(data.customers) ? data.customers : []);
+          setCurrency(data.currency || "EGP");
+        }
+      } catch (requestError) {
+        if (!canceled) {
+          setError(requestError instanceof Error ? requestError.message : "Unexpected error");
+        }
+      } finally {
+        if (!canceled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
+  const filteredCustomers = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return customers;
+
+    return customers.filter((customer) => {
+      const fullName = [customer.firstName, customer.lastName].filter(Boolean).join(" ").toLowerCase();
+      return fullName.includes(normalized) || customer.email.toLowerCase().includes(normalized);
+    });
+  }, [customers, query]);
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search by name or email"
+          className="h-10 w-full rounded-lg bg-(--muted) px-3 text-sm outline-none sm:w-72"
+        />
+      </div>
 
-      <div className="rounded-2xl border border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] p-6">
-        <div className="flex flex-col items-center justify-center py-16 text-[var(--muted-foreground,#64748b)]">
-          <svg className="size-16 mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-          </svg>
-          <p>{t("empty")}</p>
-        </div>
+      {error && <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600">{error}</div>}
+
+      <div className="overflow-hidden rounded-2xl border border-(--border) bg-background">
+        {loading ? (
+          <p className="p-6 text-sm text-(--muted-foreground)">Loading customers...</p>
+        ) : filteredCustomers.length === 0 ? (
+          <p className="p-6 text-sm text-(--muted-foreground)">{t("empty")}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className="bg-(--muted)/50 text-xs uppercase tracking-wider text-(--muted-foreground)">
+                <tr>
+                  <th className="px-4 py-3">Customer</th>
+                  <th className="px-4 py-3">Joined</th>
+                  <th className="px-4 py-3">Orders</th>
+                  <th className="px-4 py-3">Spent</th>
+                  <th className="px-4 py-3">Last order</th>
+                  <th className="px-4 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCustomers.map((customer) => {
+                  const fullName = [customer.firstName, customer.lastName].filter(Boolean).join(" ") || "Customer";
+
+                  return (
+                    <tr key={customer.id} className="border-t border-(--border)">
+                      <td className="px-4 py-3">
+                        <p className="font-semibold text-foreground">{fullName}</p>
+                        <p className="text-xs text-(--muted-foreground)">{customer.email}</p>
+                      </td>
+                      <td className="px-4 py-3 text-(--muted-foreground)">{new Date(customer.createdAt).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 font-semibold text-foreground">{customer.totalOrders}</td>
+                      <td className="px-4 py-3 font-semibold text-(--primary)">{formatPrice(customer.totalSpent, currency)}</td>
+                      <td className="px-4 py-3 text-(--muted-foreground)">
+                        {customer.lastOrderAt ? new Date(customer.lastOrderAt).toLocaleDateString() : "-"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Link href={`/dashboard/customers/${customer.id}`} className="text-xs font-semibold text-(--primary) hover:underline">
+                          View details
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

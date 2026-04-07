@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import { useCartStore } from "@/stores/use-cart-store";
-import { useFavoritesStore } from "@/stores/use-favorites-store";
-import { formatPrice, cn } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 
 interface CartSidebarProps {
   storeSlug: string;

@@ -61,7 +61,7 @@ export default function StoreClientLogin({
           // Ignore localStorage access errors.
         }
 
-        const destination = `/store/${storeSlug}`;
+        const destination = `/${locale}/store/${storeSlug}`;
 
         // Prefer client-side navigation for a smooth UX.
         router.replace(destination);

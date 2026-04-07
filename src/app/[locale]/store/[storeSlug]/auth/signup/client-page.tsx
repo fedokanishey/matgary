@@ -35,7 +35,7 @@ export default function StoreClientSignUp({
   const { signUp, verifySignupOtp } = useCustomerAuth(storeId, storeSlug);
 
   const goToStoreHome = () => {
-    const destination = `/store/${storeSlug}`;
+    const destination = `/${locale}/store/${storeSlug}`;
 
     router.replace(destination);
     router.refresh();

@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
 
 interface ImageCropperProps {
   open: boolean

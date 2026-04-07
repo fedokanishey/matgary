@@ -18,22 +18,22 @@ export function StorefrontFooter({ store, locale }: StorefrontFooterProps) {
 
   const footerLinks = {
     shop: [
-      { label: "All Products", href: basePath },
-      { label: "New Arrivals", href: `${basePath}?filter=new` },
-      { label: "Best Sellers", href: `${basePath}?filter=best-sellers` },
-      { label: "Sale", href: `${basePath}?filter=sale` },
+      { label: "All Products", href: `${basePath}/shop` },
+      { label: "New Arrivals", href: `${basePath}/shop?sort=latest` },
+      { label: "Featured", href: `${basePath}/shop?featured=true` },
+      { label: "Categories", href: `${basePath}/categories` },
     ],
     support: [
       { label: "Contact Us", href: `${basePath}/contact` },
       { label: "FAQs", href: `${basePath}/faq` },
-      { label: "Shipping Info", href: `${basePath}/shipping` },
-      { label: "Returns", href: `${basePath}/returns` },
+      { label: "About", href: `${basePath}/about` },
+      { label: "Blog", href: `${basePath}/blog` },
     ],
     account: [
       { label: "My Account", href: `${basePath}/account` },
-      { label: "Order History", href: `${basePath}/account/orders` },
-      { label: "Wishlist", href: `${basePath}/favorites` },
-      { label: "Track Order", href: `${basePath}/track` },
+      { label: "Order History", href: `${basePath}/orders` },
+      { label: "Wishlist", href: `${basePath}/wishlist` },
+      { label: "Addresses", href: `${basePath}/profile/addresses` },
     ],
   };
 

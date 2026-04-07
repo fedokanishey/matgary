@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -23,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { GenericInput } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -200,26 +201,6 @@ export default function ProductsPage() {
     }
   };
 
-  // Toggle featured/archived
-  const handleToggle = async (product: Product, field: "isFeatured" | "isArchived") => {
-    try {
-      const res = await fetch("/api/notifications/products", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: product.id,
-          [field]: !product[field],
-        }),
-      });
-
-      if (res.ok) {
-        queryClient.invalidateQueries({ queryKey: ["products"] });
-      }
-    } catch (error) {
-      console.error("Failed to update product:", error);
-    }
-  };
-
   // Loading skeleton
   if (isLoading) {
     return (
@@ -247,10 +228,18 @@ export default function ProductsPage() {
             {products.length} {products.length === 1 ? "product" : "products"} in your store
           </p>
         </div>
-        <Button onClick={handleAddNew} className="gap-2">
-          <Plus className="w-4 h-4" />
-          {t("add")}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={handleAddNew} className="gap-2">
+            <Plus className="w-4 h-4" />
+            {t("add")}
+          </Button>
+          <Button asChild variant="outline" className="gap-2">
+            <Link href="/dashboard/products/new">
+              <Plus className="w-4 h-4" />
+              New page
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

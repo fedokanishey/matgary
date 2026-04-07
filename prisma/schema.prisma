@@ -53,8 +53,11 @@ model Store {
   categories     Category[]
   products       Product[]
   orders         Order[]
+  coupons        Coupon[]
+  reviews        ProductReview[]
   notifications  Notification[]
   storeCustomers StoreCustomer[]
+  customerAddresses StoreCustomerAddress[]
   passwordOtps   CustomerPasswordOtp[]
   signupOtps     CustomerSignupOtp[]
 
@@ -139,6 +142,7 @@ model Product {
   categoryId String?     @db.ObjectId
   category   Category?   @relation(fields: [categoryId], references: [id])
   orderItems OrderItem[]
+  reviews    ProductReview[]
 
   @@unique([storeId, slug])
   @@index([storeId])
@@ -168,6 +172,8 @@ model Order {
   customerEmail   String
   customerPhone   String?
   shippingAddress String?
+  trackingNumber  String?
+  discountAmount  Float       @default(0)
   notes           String?
   isPaid          Boolean     @default(false)
   createdAt       DateTime    @default(now())
@@ -178,6 +184,8 @@ model Order {
 
   customerId String?        @db.ObjectId
   customer   StoreCustomer? @relation(fields: [customerId], references: [id])
+  couponId   String?        @db.ObjectId
+  coupon     Coupon?        @relation(fields: [couponId], references: [id])
 
   items OrderItem[]
 
@@ -266,6 +274,8 @@ model StoreCustomer {
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   orders    Order[]
+  addresses StoreCustomerAddress[]
+  reviews   ProductReview[]
   wishlist  String[] @default([])
   cartItems CartItem[]
 
@@ -274,6 +284,84 @@ model StoreCustomer {
 
   @@unique([storeId, email])
   @@index([storeId])
+}
+
+// -----------------------------------------------------------------
+// StoreCustomerAddress stores customer saved addresses per store
+// -----------------------------------------------------------------
+model StoreCustomerAddress {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  label        String?
+  fullName     String?
+  phone        String?
+  country      String?
+  city         String?
+  state        String?
+  addressLine1 String
+  addressLine2 String?
+  postalCode   String?
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  storeId    String        @db.ObjectId
+  store      Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customerId String        @db.ObjectId
+  customer   StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([customerId])
+  @@index([customerId, isDefault])
+}
+
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model Coupon {
+  id                String             @id @default(auto()) @map("_id") @db.ObjectId
+  code              String
+  description       String?
+  discountType      CouponDiscountType
+  discountValue     Float
+  minOrderAmount    Float?
+  maxDiscountAmount Float?
+  usageLimit        Int?
+  usedCount         Int                @default(0)
+  startsAt          DateTime?
+  endsAt            DateTime?
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orders  Order[]
+
+  @@unique([storeId, code])
+  @@index([storeId])
+}
+
+model ProductReview {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating     Int
+  title      String?
+  comment    String?
+  isApproved Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  storeId    String        @db.ObjectId
+  store      Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId  String        @db.ObjectId
+  product    Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId String        @db.ObjectId
+  customer   StoreCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, customerId])
+  @@index([storeId])
+  @@index([productId])
 }
 
 // -----------------------------------------------------------------

@@ -86,6 +86,18 @@ const SelectContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { open, setOpen } = useSelectContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
+  const setRefs = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      contentRef.current = node
+
+      if (typeof ref === "function") {
+        ref(node)
+      } else if (ref) {
+        ref.current = node
+      }
+    },
+    [ref]
+  )
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -104,7 +116,7 @@ const SelectContent = React.forwardRef<
 
   return (
     <div
-      ref={contentRef}
+      ref={setRefs}
       className={cn(
         "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg animate-in fade-in-0 zoom-in-95",
         className

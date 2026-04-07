@@ -19,12 +19,18 @@ const isPublicRoute = createRouteMatcher([
 
 const isCustomerProtectedRoute = createRouteMatcher([
   "/:locale/store/:storeSlug/account(.*)",
-  "/:locale/store/:storeSlug/checkout(.*)"
+  "/:locale/store/:storeSlug/profile(.*)",
+  "/:locale/store/:storeSlug/orders(.*)",
+  "/:locale/store/:storeSlug/wishlist(.*)",
+  "/:locale/store/:storeSlug/checkout(.*)",
+  "/:locale/store/:storeSlug/order/success(.*)"
 ]);
 
 const isCustomerAuthRoute = createRouteMatcher([
-  "/:locale/store/:storeSlug/account/login(.*)",
-  "/:locale/store/:storeSlug/account/signup(.*)"
+  "/:locale/store/:storeSlug/auth/login(.*)",
+  "/:locale/store/:storeSlug/auth/signup(.*)",
+  "/:locale/store/:storeSlug/login(.*)",
+  "/:locale/store/:storeSlug/register(.*)"
 ]);
 
 const isApiRoute = createRouteMatcher(["/api(.*)"]);

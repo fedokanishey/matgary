@@ -22,6 +22,17 @@ const navItems = [
     ),
   },
   {
+    key: "analytics",
+    href: "/dashboard/analytics",
+    icon: (
+      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 13.125C3 12.5037 3.50368 12 4.125 12H6.375C6.99632 12 7.5 12.5037 7.5 13.125V19.875C7.5 20.4963 6.99632 21 6.375 21H4.125C3.50368 21 3 20.4963 3 19.875V13.125Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 8.625C9.75 8.00368 10.2537 7.5 10.875 7.5H13.125C13.7463 7.5 14.25 8.00368 14.25 8.625V19.875C14.25 20.4963 13.7463 21 13.125 21H10.875C10.2537 21 9.75 20.4963 9.75 19.875V8.625Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.5 4.125C16.5 3.50368 17.0037 3 17.625 3H19.875C20.4963 3 21 3.50368 21 4.125V19.875C21 20.4963 20.4963 21 19.875 21H17.625C17.0037 21 16.5 20.4963 16.5 19.875V4.125Z" />
+      </svg>
+    ),
+  },
+  {
     key: "products",
     href: "/dashboard/products",
     icon: (
@@ -49,6 +60,28 @@ const navItems = [
     ),
   },
   {
+    key: "coupons",
+    href: "/dashboard/coupons",
+    icon: (
+      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 14.25L15 8.25" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 8.25H9.7575V8.2575H9.75V8.25Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.25 14.25H14.2575V14.2575H14.25V14.25Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 9.75L7.5 6L14.25 12.75L10.5 16.5L3.75 9.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 16.5L14.25 20.25L21 13.5L17.25 9.75" />
+      </svg>
+    ),
+  },
+  {
+    key: "notifications",
+    href: "/dashboard/notifications",
+    icon: (
+      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+      </svg>
+    ),
+  },
+  {
     key: "settings",
     href: "/dashboard/settings",
     icon: (
@@ -67,19 +100,20 @@ export default function DashboardLayout({
 }) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
+  const dashboardPath = pathname.match(/\/dashboard(?:\/.*)?$/)?.[0] || pathname;
   const { isOpen, toggle } = useSidebarStore();
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--muted,#f1f5f9)]">
+    <div className="flex h-screen overflow-hidden bg-(--muted,#f1f5f9)">
       {/* Sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col border-e border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] transition-all duration-300",
+          "hidden md:flex flex-col border-e border-(--border,#e2e8f0) bg-(--background,#ffffff) transition-all duration-300",
           isOpen ? "w-64" : "w-20"
         )}
       >
-        <div className="flex h-20 items-center justify-center border-b border-[var(--border,#e2e8f0)] px-2">
+        <div className="flex h-20 items-center justify-center border-b border-(--border,#e2e8f0) px-2">
           <Link href="/dashboard" className="flex items-center justify-center">
             <Image src="/logo.png" alt="Matgary Logo" width={300} height={100} className="h-16 w-auto object-contain scale-150" priority quality={100} unoptimized />
           </Link>
@@ -88,7 +122,10 @@ export default function DashboardLayout({
         {/* Nav Items */}
         <nav className="flex-1 space-y-1 p-3">
           {navItems.map((item) => {
-            const isActive = pathname.endsWith(item.href) || (item.href === "/dashboard" && pathname.endsWith("/dashboard"));
+            const isActive =
+              item.href === "/dashboard"
+                ? dashboardPath === "/dashboard"
+                : dashboardPath === item.href || dashboardPath.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.key}
@@ -96,8 +133,8 @@ export default function DashboardLayout({
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-[var(--primary,#6366f1)] text-white shadow-md shadow-[var(--primary,#6366f1)]/25"
-                    : "text-[var(--muted-foreground,#64748b)] hover:bg-[var(--muted,#f1f5f9)] hover:text-[var(--foreground,#0f172a)]"
+                    ? "bg-(--primary,#6366f1) text-white shadow-md shadow-(--primary,#6366f1)/25"
+                    : "text-(--muted-foreground,#64748b) hover:bg-(--muted,#f1f5f9) hover:text-(--foreground,#0f172a)"
                 )}
               >
                 {item.icon}
@@ -111,10 +148,12 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex h-16 items-center justify-between border-b border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] px-6">
+        <header className="flex h-16 items-center justify-between border-b border-(--border,#e2e8f0) bg-(--background,#ffffff) px-6">
           <button
             onClick={toggle}
-            className="p-2 rounded-lg hover:bg-[var(--muted,#f1f5f9)] transition-colors"
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            className="p-2 rounded-lg hover:bg-(--muted,#f1f5f9) transition-colors"
           >
             <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -129,26 +168,26 @@ export default function DashboardLayout({
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 rounded-lg hover:bg-[var(--muted,#f1f5f9)] transition-colors"
+                className="relative p-2 rounded-lg hover:bg-(--muted,#f1f5f9) transition-colors"
                 title="Notifications"
               >
                 <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                 </svg>
-                <span className="absolute top-1 end-1 size-2 rounded-full bg-red-500" />
+                <span className="absolute top-1 inset-e-1 size-2 rounded-full bg-red-500" />
               </button>
 
               {showNotifications && (
-                <div className="absolute end-0 top-full mt-2 w-80 rounded-xl border border-[var(--border,#e2e8f0)] bg-[var(--background,#ffffff)] text-[var(--foreground,#0f172a)] p-4 shadow-lg z-50">
+                <div className="absolute inset-e-0 top-full mt-2 w-80 rounded-xl border border-(--border,#e2e8f0) bg-(--background,#ffffff) text-(--foreground,#0f172a) p-4 shadow-lg z-50">
                   <h3 className="mb-2 font-semibold">{t("notificationSettings.label")}</h3>
-                  <div className="rounded-lg border border-[var(--border,#e2e8f0)] p-3 bg-[var(--muted,#f1f5f9)]/50">
-                    <p className="text-sm text-[var(--muted-foreground,#64748b)]">{t("notificationSettings.empty")}</p>
+                  <div className="rounded-lg border border-(--border,#e2e8f0) p-3 bg-(--muted,#f1f5f9)/50">
+                    <p className="text-sm text-(--muted-foreground,#64748b)">{t("notificationSettings.empty")}</p>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="h-6 w-px bg-[var(--border,#e2e8f0)] mx-1" />
+            <div className="h-6 w-px bg-(--border,#e2e8f0) mx-1" />
             <UserButton />
           </div>
         </header>

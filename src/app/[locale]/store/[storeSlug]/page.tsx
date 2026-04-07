@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { HeroBanner } from "@/components/storefront/hero-banner";
 import { CategoryCard } from "@/components/storefront/category-card";
 import { ProductCard } from "@/components/storefront/product-card";
+import { DraggableScroll } from "@/components/storefront/draggable-scroll";
 import { useCartStore } from "@/stores/use-cart-store";
 import { useFavoritesStore } from "@/stores/use-favorites-store";
 
@@ -102,6 +103,7 @@ export default function StoreHomePage() {
   const featuredProducts = store.products.filter((p) => p.isFeatured);
   const newArrivals = store.products.filter((p) => isNewProduct(p.createdAt)).slice(0, 4);
   const basePath = `/${locale}/store/${storeSlug}`;
+  const railCardClassName = "snap-start shrink-0 w-[220px] sm:w-[230px] md:w-[240px] lg:w-[250px]";
 
   return (
     <div className="pb-8">
@@ -145,18 +147,12 @@ export default function StoreHomePage() {
       {/* Featured Products Section */}
       {featuredProducts.length > 0 && (
         <section className="container mx-auto px-4 py-10">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6">
             <h2 className="text-2xl font-bold text-[var(--foreground)]">
               Featured Products
             </h2>
-            <Link
-              href={`${basePath}?filter=featured`}
-              className="text-sm font-medium text-[var(--primary)] hover:underline"
-            >
-              View All
-            </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <DraggableScroll>
             {featuredProducts.slice(0, 8).map((product) => (
               <ProductCard
                 key={product.id}
@@ -173,6 +169,7 @@ export default function StoreHomePage() {
                 categoryName={product.category?.name}
                 storeSlug={storeSlug}
                 locale={locale}
+                className={railCardClassName}
                 isFavorite={favorites.includes(product.id)}
                 onToggleFavorite={toggleFavorite}
                 onAddToCart={(id) => {
@@ -186,7 +183,7 @@ export default function StoreHomePage() {
                 }}
               />
             ))}
-          </div>
+          </DraggableScroll>
         </section>
       )}
 
@@ -198,13 +195,13 @@ export default function StoreHomePage() {
               New Arrivals
             </h2>
             <Link
-              href={`${basePath}?filter=new`}
+              href={`${basePath}/shop?sort=latest&page=1`}
               className="text-sm font-medium text-[var(--primary)] hover:underline"
             >
               View All
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <DraggableScroll>
             {newArrivals.map((product) => (
               <ProductCard
                 key={product.id}
@@ -221,6 +218,7 @@ export default function StoreHomePage() {
                 categoryName={product.category?.name}
                 storeSlug={storeSlug}
                 locale={locale}
+                className={railCardClassName}
                 isFavorite={favorites.includes(product.id)}
                 onToggleFavorite={toggleFavorite}
                 onAddToCart={(id) => {
@@ -234,7 +232,7 @@ export default function StoreHomePage() {
                 }}
               />
             ))}
-          </div>
+          </DraggableScroll>
         </section>
       )}
 
@@ -246,7 +244,7 @@ export default function StoreHomePage() {
           </h2>
         </div>
         {store.products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <DraggableScroll>
             {store.products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -263,6 +261,7 @@ export default function StoreHomePage() {
                 categoryName={product.category?.name}
                 storeSlug={storeSlug}
                 locale={locale}
+                className={railCardClassName}
                 isFavorite={favorites.includes(product.id)}
                 onToggleFavorite={toggleFavorite}
                 onAddToCart={(id) => {
@@ -276,7 +275,7 @@ export default function StoreHomePage() {
                 }}
               />
             ))}
-          </div>
+          </DraggableScroll>
         ) : (
           <div className="text-center py-20">
             <svg className="size-16 mx-auto mb-4 opacity-20 text-[var(--muted-foreground)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">

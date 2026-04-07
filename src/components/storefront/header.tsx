@@ -151,10 +151,10 @@ export function StorefrontHeader({
   };
 
   const navLinks = [
-    { label: locale === "ar" ? "المتجر" : "Shop", href: basePath },
+    { label: locale === "ar" ? "المتجر" : "Shop", href: `${basePath}/shop` },
     { label: locale === "ar" ? "الأقسام" : "Categories", href: `${basePath}/categories` },
-    { label: locale === "ar" ? "الأكثر مبيعاً" : "Best Sellers", href: `${basePath}?filter=best-sellers` },
-    { label: locale === "ar" ? "وصل حديثاً" : "New Arrivals", href: `${basePath}?filter=new` },
+    { label: locale === "ar" ? "وصل حديثاً" : "New Arrivals", href: `${basePath}/shop?sort=latest` },
+    { label: locale === "ar" ? "المدونة" : "Blog", href: `${basePath}/blog` },
   ];
 
   return (
@@ -272,7 +272,7 @@ export function StorefrontHeader({
 
               {/* Favorites */}
               <Link
-                href={`${basePath}/favorites`}
+                href={`${basePath}/wishlist`}
                 className="relative p-2 rounded-lg hover:bg-[var(--muted)] transition-colors hidden sm:flex"
               >
                 <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -303,7 +303,7 @@ export function StorefrontHeader({
 
               {/* Profile */}
               <Link
-                href={`${basePath}/account`}
+                href={`${basePath}/profile`}
                 className="p-2 rounded-lg hover:bg-[var(--muted)] transition-colors hidden sm:flex"
               >
                 {customer ? (

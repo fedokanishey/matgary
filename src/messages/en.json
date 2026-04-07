@@ -55,9 +55,11 @@
     "welcome": "Welcome back",
     "nav": {
       "overview": "Overview",
+      "analytics": "Analytics",
       "products": "Products",
       "orders": "Orders",
       "customers": "Customers",
+      "coupons": "Coupons",
       "settings": "Settings",
       "notifications": "Notifications"
     },

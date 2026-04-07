@@ -55,9 +55,11 @@
     "welcome": "أهلاً بعودتك",
     "nav": {
       "overview": "نظرة عامة",
+      "analytics": "التحليلات",
       "products": "المنتجات",
       "orders": "الطلبات",
       "customers": "العملاء",
+      "coupons": "الكوبونات",
       "settings": "الإعدادات",
       "notifications": "الإشعارات"
     },

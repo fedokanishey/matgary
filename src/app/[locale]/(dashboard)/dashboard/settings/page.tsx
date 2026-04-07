@@ -116,7 +116,6 @@ export default function SettingsPage() {
   // State
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -183,14 +182,8 @@ export default function SettingsPage() {
         });
       }
       setIsInitialized(true);
-      setHasChanges(false);
     }
   }, [settingsData, isInitialized]);
-
-  // Track changes
-  useEffect(() => {
-    setHasChanges(true);
-  }, [storeSettings, themeSettings, featureSettings]);
 
   // Save all settings
   const handleSaveAll = async () => {
@@ -264,7 +257,6 @@ export default function SettingsPage() {
       }
 
       setSaveSuccess(true);
-      setHasChanges(false);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error("Failed to save settings:", error);

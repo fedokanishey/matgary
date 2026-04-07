@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cn, formatPrice } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 export interface ProductCardProps {
   id: string;
@@ -56,27 +55,59 @@ export function ProductCard({
     ? Math.round(((compareAt - price) / compareAt) * 100)
     : 0;
 
-  const productLink = storeSlug && slug 
-    ? `/${locale}/store/${storeSlug}/product/${slug}` 
+  const productLink = storeSlug
+    ? `/${locale}/store/${storeSlug}/product/${id || slug}`
     : undefined;
+
+  const starPath = "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z";
 
   // Star rating component
   const renderStars = (rating: number) => {
+    const normalizedRating = Math.max(0, Math.min(5, rating));
+    const roundedToHalf = Math.round(normalizedRating * 2) / 2;
+    const fullStars = Math.floor(roundedToHalf);
+    const hasHalfStar = roundedToHalf - fullStars === 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
     return (
       <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((star) => (
+        {Array.from({ length: fullStars }).map((_, index) => (
           <svg
-            key={star}
-            className={cn(
-              "size-3",
-              star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
-            )}
+            key={`full-${index}`}
+            className="size-3 text-yellow-400 fill-yellow-400"
             viewBox="0 0 20 20"
             fill="currentColor"
+            aria-hidden="true"
           >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            <path d={starPath} />
           </svg>
         ))}
+
+        {hasHalfStar && (
+          <div key="half" className="relative size-3" aria-hidden="true">
+            <svg className="size-3 text-gray-300 fill-gray-300" viewBox="0 0 20 20" fill="currentColor">
+              <path d={starPath} />
+            </svg>
+            <div className="absolute inset-y-0 inset-s-0 w-1/2 overflow-hidden">
+              <svg className="size-3 text-yellow-400 fill-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path d={starPath} />
+              </svg>
+            </div>
+          </div>
+        )}
+
+        {Array.from({ length: emptyStars }).map((_, index) => (
+          <svg
+            key={`empty-${index}`}
+            className="size-3 text-gray-300 fill-gray-300"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d={starPath} />
+          </svg>
+        ))}
+
         {reviewCount !== undefined && (
           <span className="text-[10px] text-[var(--muted-foreground)] ml-1">
             ({reviewCount})

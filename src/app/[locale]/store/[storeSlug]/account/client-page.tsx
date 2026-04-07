@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCustomerAuth } from "@/hooks/use-customer-auth";
 
 // Map needs to be imported dynamically because Leaflet requires window
@@ -144,12 +145,18 @@ export function AccountClientPage({
             <button className="w-full text-start px-4 py-2 font-medium text-[var(--primary)] bg-[var(--primary)]/10 rounded-lg">
               {isAr ? "العناوين و الموقع" : "Addresses & Location"}
             </button>
-            <button className="w-full text-start px-4 py-2 font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+            <Link
+              href={`${basePath}/orders`}
+              className="w-full text-start px-4 py-2 font-medium text-gray-600 hover:bg-gray-50 rounded-lg"
+            >
               {isAr ? "الطلبات السابقة" : "Order History"}
-            </button>
-            <button className="w-full text-start px-4 py-2 font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
-              {isAr ? "إعدادات الحساب" : "Account Settings"}
-            </button>
+            </Link>
+            <Link
+              href={`${basePath}/profile/addresses`}
+              className="w-full text-start px-4 py-2 font-medium text-gray-600 hover:bg-gray-50 rounded-lg"
+            >
+              {isAr ? "إدارة العناوين" : "Manage Addresses"}
+            </Link>
             <hr className="my-2 border-gray-100" />
             <button
               onClick={async () => {

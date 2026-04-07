@@ -21,7 +21,7 @@ export default async function StorefrontLayout({
 
   const store = await db.store.findUnique({
     where: { slug: storeSlug },
-    include: { themeSettings: true },
+    include: { themeSettings: true, configuration: true },
   });
 
   if (!store || !store.isActive) {
@@ -31,7 +31,11 @@ export default async function StorefrontLayout({
   return (
     <ThemeProvider themeSettings={store.themeSettings}>
       {/* Header */}
-      <StorefrontHeader store={store} locale={locale} />
+      <StorefrontHeader
+        store={store}
+        locale={locale}
+        darkModeEnabled={store.configuration?.darkMode ?? true}
+      />
 
       {/* Cart Sidebar */}
       <CartSidebar 
